@@ -1,5 +1,4 @@
 <?php
-// api/src/State/SaveMediaObject.php
 
 namespace App\Controller;
 

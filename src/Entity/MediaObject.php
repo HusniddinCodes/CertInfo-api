@@ -1,5 +1,4 @@
 <?php
-// api/src/Entity/MediaObject.php
 
 namespace App\Entity;
 

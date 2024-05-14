@@ -9,7 +9,6 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class MediaObjectNormalizer implements NormalizerInterface
 {
-
     private const ALREADY_CALLED = 'MEDIA_OBJECT_NORMALIZER_ALREADY_CALLED';
 
     public function __construct(
