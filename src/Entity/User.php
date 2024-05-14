@@ -26,6 +26,8 @@ use App\Entity\Interfaces\DeletedAtSettableInterface;
 use App\Entity\Interfaces\UpdatedAtSettableInterface;
 use App\Repository\UserRepository;
 use DateTimeInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -150,6 +152,14 @@ class User implements
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $deletedAt = null;
 
+    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Course::class)]
+    private Collection $courses;
+
+    public function __construct()
+    {
+        $this->courses = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -269,6 +279,36 @@ class User implements
     public function setDeletedAt(?DateTimeInterface $deletedAt): self
     {
         $this->deletedAt = $deletedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Course>
+     */
+    public function getCourses(): Collection
+    {
+        return $this->courses;
+    }
+
+    public function addCourse(Course $course): self
+    {
+        if (!$this->courses->contains($course)) {
+            $this->courses->add($course);
+            $course->setCreatedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCourse(Course $course): self
+    {
+        if ($this->courses->removeElement($course)) {
+            // set the owning side to null (unless already changed)
+            if ($course->getCreatedBy() === $this) {
+                $course->setCreatedBy(null);
+            }
+        }
 
         return $this;
     }
