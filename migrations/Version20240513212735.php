@@ -14,7 +14,7 @@ final class Version20240513212735 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Create MediaObject';
     }
 
     public function up(Schema $schema): void
