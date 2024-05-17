@@ -40,6 +40,12 @@ security:
             methods:
                 - post
 
+        media_object:
+            pattern: ^/api/media_objects$
+            security: false
+            methods:
+                - post
+
         user_auth_refreshToken:
             pattern: ^/api/users/auth/refreshToken$
             security: false
