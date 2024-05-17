@@ -152,12 +152,12 @@ class User implements
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $deletedAt = null;
 
-    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Person::class)]
-    private Collection $people;
+    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Course::class)]
+    private Collection $courses;
 
     public function __construct()
     {
-        $this->people = new ArrayCollection();
+        $this->courses = new ArrayCollection();
     }
 
     public function getId(): ?int
