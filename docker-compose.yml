@@ -1,3 +1,5 @@
+version: '3'
+
 services:
     php:
         container_name: ${DOCKER_PROJECT_NAME}_php
