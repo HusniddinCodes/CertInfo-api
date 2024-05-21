@@ -284,29 +284,29 @@ class User implements
     }
 
     /**
-     * @return Collection<int, Course>
+     * @return Collection<int, Person>
      */
-    public function getCourses(): Collection
+    public function getPeople(): Collection
     {
-        return $this->courses;
+        return $this->people;
     }
 
-    public function addCourse(Course $course): self
+    public function addPerson(Person $person): self
     {
-        if (!$this->courses->contains($course)) {
-            $this->courses->add($course);
-            $course->setCreatedBy($this);
+        if (!$this->people->contains($person)) {
+            $this->people->add($person);
+            $person->setCreatedBy($this);
         }
 
         return $this;
     }
 
-    public function removeCourse(Course $course): self
+    public function removePerson(Person $person): self
     {
-        if ($this->courses->removeElement($course)) {
+        if ($this->people->removeElement($person)) {
             // set the owning side to null (unless already changed)
-            if ($course->getCreatedBy() === $this) {
-                $course->setCreatedBy(null);
+            if ($person->getCreatedBy() === $this) {
+                $person->setCreatedBy(null);
             }
         }
 
