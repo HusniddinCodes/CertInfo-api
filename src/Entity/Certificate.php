@@ -3,13 +3,42 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Entity\Interfaces\CreatedAtSettableInterface;
+use App\Entity\Interfaces\CreatedBySettableInterface;
+use App\Entity\Interfaces\DeletedAtSettableInterface;
+use App\Entity\Interfaces\DeletedBySettableInterface;
+use App\Entity\Interfaces\UpdatedAtSettableInterface;
+use App\Entity\Interfaces\UpdatedBySettableInterface;
 use App\Repository\CertificateRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CertificateRepository::class)]
-#[ApiResource]
-class Certificate
+#[ApiResource(
+    operations: [
+        new Post(),
+        new GetCollection(),
+        new Put(),
+        new Delete(),
+        new Get(),
+    ],
+    normalizationContext: ['groups' => ['certificate:read']],
+    denormalizationContext: ['groups' => ['certificate:write']]
+)]
+class Certificate implements
+    CreatedAtSettableInterface,
+    CreatedBySettableInterface,
+    UpdatedAtSettableInterface,
+    UpdatedBySettableInterface,
+    DeletedAtSettableInterface,
+    DeletedBySettableInterface
+
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -22,35 +51,45 @@ class Certificate
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['certificate:read'])]
     private ?MediaObject $file = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['certificate:read', 'certificate:write'])]
     private ?Course $course = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Groups(['certificate:read', 'certificate:write'])]
     private ?\DateTimeInterface $courseFinishedDate = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['certificate:read', 'certificate:write'])]
     private ?string $practiceDescription = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['certificate:read', 'certificate:write'])]
     private ?string $certificateDefense = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(['certificate:read'])]
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['certificate:read'])]
     private ?User $createdBy = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['certificate:read'])]
     private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\ManyToOne]
+    #[Groups(['certificate:read'])]
     private ?User $updatedBy = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['certificate:read'])]
     private ?\DateTimeImmutable $deletedAt = null;
 
     #[ORM\ManyToOne]
@@ -150,7 +189,7 @@ class Certificate
         return $this->createdBy;
     }
 
-    public function setCreatedBy(?User $createdBy): self
+    public function setCreatedBy(User|\Symfony\Component\Security\Core\User\UserInterface|null $createdBy): self
     {
         $this->createdBy = $createdBy;
 
@@ -174,7 +213,7 @@ class Certificate
         return $this->updatedBy;
     }
 
-    public function setUpdatedBy(?User $updatedBy): self
+    public function setUpdatedBy(User|\Symfony\Component\Security\Core\User\UserInterface|null $updatedBy): self
     {
         $this->updatedBy = $updatedBy;
 
@@ -186,7 +225,7 @@ class Certificate
         return $this->deletedAt;
     }
 
-    public function setDeletedAt(?\DateTimeImmutable $deletedAt): self
+    public function setDeletedAt(\DateTimeInterface|null $deletedAt): self
     {
         $this->deletedAt = $deletedAt;
 
@@ -198,7 +237,7 @@ class Certificate
         return $this->deletedBy;
     }
 
-    public function setDeletedBy(?User $deletedBy): self
+    public function setDeletedBy(User|\Symfony\Component\Security\Core\User\UserInterface|null $deletedBy): self
     {
         $this->deletedBy = $deletedBy;
 
