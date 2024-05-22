@@ -155,9 +155,13 @@ class User implements
     #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Course::class)]
     private Collection $courses;
 
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Certificate::class)]
+    private Collection $certificates;
+
     public function __construct()
     {
         $this->courses = new ArrayCollection();
+        $this->certificates = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -307,6 +311,36 @@ class User implements
             // set the owning side to null (unless already changed)
             if ($person->getCreatedBy() === $this) {
                 $person->setCreatedBy(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Certificate>
+     */
+    public function getCertificates(): Collection
+    {
+        return $this->certificates;
+    }
+
+    public function addCertificate(Certificate $certificate): self
+    {
+        if (!$this->certificates->contains($certificate)) {
+            $this->certificates->add($certificate);
+            $certificate->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCertificate(Certificate $certificate): self
+    {
+        if ($this->certificates->removeElement($certificate)) {
+            // set the owning side to null (unless already changed)
+            if ($certificate->getOwner() === $this) {
+                $certificate->setOwner(null);
             }
         }
 
