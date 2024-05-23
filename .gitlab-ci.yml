@@ -13,43 +13,43 @@
 #
 # For more information, see: https://docs.gitlab.com/ee/ci/yaml/index.html#stages
 
-#stages:
-#    - deploy
-#
-#before_script:
-#    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
-#    - eval $(ssh-agent -s)
-#    - mkdir -p ~/.ssh
-#    - chmod 700 ~/.ssh
-#
-#deploy-dev-job:
-#    stage: deploy
-#    only:
-#        - dev
-#    script:
-#        - echo "$DEPLOY_PRIVATE_SSH_KEY_DEV" | tr -d '\r' | ssh-add -
-#        - echo "Deploying the DEV project..."
-#        - ssh -tt -o StrictHostKeyChecking=no -p ${DEPLOY_PORT_DEV:-22} ${DEPLOY_HOST_DEV} \
-#            "cd ${DEPLOY_PATH_DEV:-/root/sites/${PROJECT_NAME}-dev/} &&
-#            git reset --hard &&
-#            git pull origin dev &&
-#            docker compose down &&
-#            docker compose --env-file=.env.local up -d --build &&
-#            docker compose exec php composer install &&
-#            docker compose exec php bin/console ask:deploy"
-#
-#deploy-prod-job:
-#    stage: deploy
-#    only:
-#        - master
-#    script:
-#        - echo "${DEPLOY_PRIVATE_SSH_KEY_PROD:-$DEPLOY_PRIVATE_SSH_KEY_DEV}" | tr -d '\r' | ssh-add -
-#        - echo "Deploying the PROD project..."
-#        - ssh -tt -o StrictHostKeyChecking=no -p ${DEPLOY_PORT_PROD:-${DEPLOY_PORT_DEV:-22}} ${DEPLOY_HOST_PROD:-$DEPLOY_HOST_DEV} \
-#            "cd ${DEPLOY_PATH_PROD:-/root/sites/${PROJECT_NAME}/} &&
-#            git reset --hard &&
-#            git pull origin master &&
-#            docker compose down &&
-#            docker compose up -d --build &&
-#            docker compose exec php composer install &&
-#            docker compose exec php bin/console ask:deploy"
+stages:
+  - deploy
+
+before_script:
+  - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+  - eval $(ssh-agent -s)
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+
+deploy-dev-job:
+  stage: deploy
+  only:
+    - dev
+  script:
+    - echo "$DEPLOY_PRIVATE_SSH_KEY_DEV" | tr -d '\r' | ssh-add -
+    - echo "Deploying the DEV project..."
+    - ssh -tt -o StrictHostKeyChecking=no -p ${DEPLOY_PORT_DEV:-22} ${DEPLOY_HOST_DEV} \
+      "cd ${DEPLOY_PATH_DEV:-/root/sites/dev-mv-uz &&
+      git reset --hard &&
+      git pull origin dev &&
+      docker compose down &&
+      docker compose --env-file=.env.local up -d --build &&
+      docker compose exec php composer install &&
+      docker compose exec php bin/console ask:deploy"
+
+deploy-prod-job:
+  stage: deploy
+  only:
+    - master
+  script:
+    - echo "${DEPLOY_PRIVATE_SSH_KEY_PROD:-$DEPLOY_PRIVATE_SSH_KEY_DEV}" | tr -d '\r' | ssh-add -
+    - echo "Deploying the PROD project..."
+    - ssh -tt -o StrictHostKeyChecking=no -p ${DEPLOY_PORT_PROD:-${DEPLOY_PORT_DEV:-22}} ${DEPLOY_HOST_PROD:-$DEPLOY_HOST_DEV} \
+      "cd ${DEPLOY_PATH_PROD:-/root/sites/${PROJECT_NAME}/} &&
+      git reset --hard &&
+      git pull origin master &&
+      docker compose down &&
+      docker compose up -d --build &&
+      docker compose exec php composer install &&
+      docker compose exec php bin/console ask:deploy"
