@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use App\Entity\Interfaces\CreatedAtSettableInterface;
-use App\Entity\Interfaces\CreatedBySettableInterface;
 use App\Entity\Interfaces\DeletedAtSettableInterface;
 use App\Entity\Interfaces\DeletedBySettableInterface;
 use App\Entity\Interfaces\UpdatedAtSettableInterface;
@@ -22,7 +21,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 class Person implements
     CreatedAtSettableInterface,
-    CreatedBySettableInterface,
     UpdatedAtSettableInterface,
     UpdatedBySettableInterface,
     DeletedAtSettableInterface,
@@ -35,32 +33,35 @@ class Person implements
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['persons:read', 'person:write'])]
+    #[Groups(['persons:read', 'person:write', 'users:read'])]
     private ?string $givenName = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['persons:read', 'person:write'])]
+    #[Groups(['persons:read', 'person:write', 'users:read'])]
     private ?string $familyName = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     #[Groups(['persons:read'])]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\ManyToOne(inversedBy: 'people')]
+    #[ORM\OneToOne(inversedBy: 'person', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $createdBy = null;
+    private ?User $user = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
-    #[ORM\ManyToOne(inversedBy: 'people')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'person')]
     private ?User $updatedBy = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $deletedAt = null;
 
-    #[ORM\ManyToOne(inversedBy: 'people')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'person')]
     private ?User $deledetBy = null;
+
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    private ?MediaObject $avatar = null;
 
     public function getId(): ?int
     {
@@ -103,14 +104,14 @@ class Person implements
         return $this;
     }
 
-    public function getCreatedBy(): ?User
+    public function getUser(): ?User
     {
-        return $this->createdBy;
+        return $this->user;
     }
 
-    public function setCreatedBy(?UserInterface $createdBy): self
+    public function setUser(User $user): self
     {
-        $this->createdBy = $createdBy;
+        $this->user = $user;
 
         return $this;
     }
@@ -165,6 +166,18 @@ class Person implements
 
     public function setDeletedBy(UserInterface $user): DeletedBySettableInterface
     {
+        return $this;
+    }
+
+    public function getAvatar(): ?MediaObject
+    {
+        return $this->avatar;
+    }
+
+    public function setAvatar(?MediaObject $avatar): self
+    {
+        $this->avatar = $avatar;
+
         return $this;
     }
 }

@@ -8,6 +8,11 @@ parameters:
     tokens_creator.refresh_expiration_period: '%env(TOKEN_REFRESH_EXPIRATION_PERIOD)%'
 
 services:
+    Vich\UploaderBundle\Naming\SlugNamer:
+        public: true
+        arguments:
+            $service: '@App\Repository\MediaObjectRepository'
+            $method: findOneByPath
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.

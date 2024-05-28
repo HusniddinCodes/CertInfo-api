@@ -2,15 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Controller\User;
 
 use App\Component\User\Dtos\RefreshTokenDto;
 use App\Component\User\Dtos\RefreshTokenRequestDto;
-use App\Component\User\Dtos\TokensDto;
 use App\Component\User\Exceptions\AuthException;
 use App\Component\User\TokensCreator;
 use App\Controller\Base\AbstractController;
-use App\Controller\Base\Constants\ResponseFormat;
 use App\Repository\UserRepository;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;

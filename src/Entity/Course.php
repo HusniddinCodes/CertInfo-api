@@ -10,6 +10,8 @@ use App\Entity\Interfaces\DeletedBySettableInterface;
 use App\Entity\Interfaces\UpdatedAtSettableInterface;
 use App\Entity\Interfaces\UpdatedBySettableInterface;
 use App\Repository\CourseRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -36,7 +38,7 @@ class Course implements
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['course:read', 'course:write' ])]
+    #[Groups(['course:read', 'course:write', 'certificate:read'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -61,6 +63,14 @@ class Course implements
 
     #[ORM\ManyToOne(inversedBy: 'courses')]
     private ?User $deletedBy = null;
+
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Certificate::class)]
+    private Collection $certificates;
+
+    public function __construct()
+    {
+        $this->certificates = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -159,6 +169,36 @@ class Course implements
     public function setDeletedBy(?UserInterface $deletedBy): self
     {
         $this->deletedBy = $deletedBy;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Certificate>
+     */
+    public function getCertificates(): Collection
+    {
+        return $this->certificates;
+    }
+
+    public function addCertificate(Certificate $certificate): self
+    {
+        if (!$this->certificates->contains($certificate)) {
+            $this->certificates->add($certificate);
+            $certificate->setCourse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCertificate(Certificate $certificate): self
+    {
+        if ($this->certificates->removeElement($certificate)) {
+            // set the owning side to null (unless already changed)
+            if ($certificate->getCourse() === $this) {
+                $certificate->setCourse(null);
+            }
+        }
 
         return $this;
     }

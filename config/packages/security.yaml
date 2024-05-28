@@ -59,7 +59,7 @@ security:
                 - post
 
         user_create:
-            pattern: ^/api/users/?$
+            pattern: ^/api/users/create/?$
             security: false
             methods:
                 - post
