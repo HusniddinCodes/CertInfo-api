@@ -8,6 +8,9 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Component\Certificate\CertificateCreateDto;
+use App\Controller\Certificate\CertificateCreateAction;
+use App\Controller\DeleteAction;
 use App\Entity\Interfaces\CreatedAtSettableInterface;
 use App\Entity\Interfaces\CreatedBySettableInterface;
 use App\Entity\Interfaces\DeletedAtSettableInterface;
@@ -15,18 +18,24 @@ use App\Entity\Interfaces\DeletedBySettableInterface;
 use App\Entity\Interfaces\UpdatedAtSettableInterface;
 use App\Entity\Interfaces\UpdatedBySettableInterface;
 use App\Repository\CertificateRepository;
+use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CertificateRepository::class)]
 #[ApiResource(
     operations: [
-        new Post(),
-        new GetCollection(),
-        new Put(),
-        new Delete(),
-        new Get(),
+        new Post(
+            controller: CertificateCreateAction::class,
+            security: "is_granted('ROLE_ADMIN')",
+            input: CertificateCreateDto::class,
+        ),
+        new GetCollection(security: "is_granted('ROLE_ADMIN')"),
+        new Get(security: "is_granted('ROLE_ADMIN')"),
+        new Put(security: "is_granted('ROLE_ADMIN')"),
+        new Delete(controller: DeleteAction::class, security: "is_granted('ROLE_ADMIN')"),
     ],
     normalizationContext: ['groups' => ['certificate:read']],
     denormalizationContext: ['groups' => ['certificate:write']]
@@ -38,7 +47,6 @@ class Certificate implements
     UpdatedBySettableInterface,
     DeletedAtSettableInterface,
     DeletedBySettableInterface
-
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -47,14 +55,15 @@ class Certificate implements
 
     #[ORM\ManyToOne(inversedBy: 'certificates')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['certificate:read', 'certificate:write'])]
     private ?User $owner = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['certificate:read'])]
+    #[ORM\ManyToOne(targetEntity: "App\Entity\MediaObject", cascade: ["persist"])]
+    #[ORM\JoinColumn(nullable: true)]
+    #[Groups(["certificate:read"])]
     private ?MediaObject $file = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: 'certificates')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['certificate:read', 'certificate:write'])]
     private ?Course $course = null;
@@ -71,29 +80,33 @@ class Certificate implements
     #[Groups(['certificate:read', 'certificate:write'])]
     private ?string $certificateDefense = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['certificate:read'])]
-    private ?\DateTimeInterface $createdAt = null;
-
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['certificate:read'])]
     private ?User $createdBy = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Groups(['certificate:read'])]
-    private ?\DateTimeInterface $updatedAt = null;
-
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
     #[Groups(['certificate:read'])]
     private ?User $updatedBy = null;
 
-    #[ORM\Column(nullable: true)]
-    #[Groups(['certificate:read'])]
-    private ?\DateTimeImmutable $deletedAt = null;
-
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['certificate:read'])]
     private ?User $deletedBy = null;
+
+    #[ORM\Column(type: 'datetime')]
+    #[Groups(['certificate:read'])]
+    private ?DateTimeInterface $createdAt = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Groups(['certificate:read'])]
+    private ?DateTimeInterface $updatedAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['certificate:read'])]
+    private ?DateTimeInterface $deletedAt = null;
+
 
     public function getId(): ?int
     {
@@ -172,38 +185,26 @@ class Certificate implements
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
     public function getCreatedBy(): ?User
     {
         return $this->createdBy;
     }
 
-    public function setCreatedBy(User|\Symfony\Component\Security\Core\User\UserInterface|null $createdBy): self
+    public function setCreatedBy(?UserInterface $createdBy): self
     {
         $this->createdBy = $createdBy;
 
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?string
     {
-        return $this->updatedAt;
+        return $this->createdAt?->format('d-m-Y H:i');
     }
 
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): self
+    public function setCreatedAt(DateTimeInterface $createdAt): self
     {
-        $this->updatedAt = $updatedAt;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
@@ -213,21 +214,21 @@ class Certificate implements
         return $this->updatedBy;
     }
 
-    public function setUpdatedBy(User|\Symfony\Component\Security\Core\User\UserInterface|null $updatedBy): self
+    public function setUpdatedBy(?UserInterface $updatedBy): self
     {
         $this->updatedBy = $updatedBy;
 
         return $this;
     }
 
-    public function getDeletedAt(): ?\DateTimeImmutable
+    public function getUpdatedAt(): ?string
     {
-        return $this->deletedAt;
+        return $this->updatedAt?->format('d-m-Y H:i');
     }
 
-    public function setDeletedAt(\DateTimeInterface|null $deletedAt): self
+    public function setUpdatedAt(DateTimeInterface $updatedAt): self
     {
-        $this->deletedAt = $deletedAt;
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }
@@ -237,9 +238,21 @@ class Certificate implements
         return $this->deletedBy;
     }
 
-    public function setDeletedBy(User|\Symfony\Component\Security\Core\User\UserInterface|null $deletedBy): self
+    public function setDeletedBy(?UserInterface $deletedBy): self
     {
         $this->deletedBy = $deletedBy;
+
+        return $this;
+    }
+
+    public function getDeletedAt(): ?string
+    {
+        return $this->deletedAt?->format('d-m-Y H:i');
+    }
+
+    public function setDeletedAt(?DateTimeInterface $deletedAt): self
+    {
+        $this->deletedAt = $deletedAt;
 
         return $this;
     }

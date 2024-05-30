@@ -13,14 +13,17 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Component\User\Dtos\RefreshTokenRequestDto;
+use App\Component\User\Dtos\SignUpRequestDto;
 use App\Component\User\Dtos\TokensDto;
+use App\Component\User\Dtos\UserChangeDataDto;
 use App\Controller\DeleteAction;
-use App\Controller\UserAboutMeAction;
-use App\Controller\UserAuthAction;
-use App\Controller\UserAuthByRefreshTokenAction;
-use App\Controller\UserChangePasswordAction;
-use App\Controller\UserCreateAction;
-use App\Controller\UserIsUniqueEmailAction;
+use App\Controller\User\UserAboutMeAction;
+use App\Controller\User\UserAuthAction;
+use App\Controller\User\UserAuthByRefreshTokenAction;
+use App\Controller\User\UserChangeDataAction;
+use App\Controller\User\UserChangePasswordAction;
+use App\Controller\User\UserCreateAction;
+use App\Controller\User\UserIsUniqueEmailAction;
 use App\Entity\Interfaces\CreatedAtSettableInterface;
 use App\Entity\Interfaces\DeletedAtSettableInterface;
 use App\Entity\Interfaces\UpdatedAtSettableInterface;
@@ -46,11 +49,16 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: "object == user || is_granted('ROLE_ADMIN')",
         ),
         new Post(
+            uriTemplate: '/users/create',
             controller: UserCreateAction::class,
+            input: SignUpRequestDto::class,
+            name: 'signUp'
         ),
         new Put(
+            controller: UserChangeDataAction::class,
             denormalizationContext: ['groups' => ['user:put:write']],
             security: "object == user || is_granted('ROLE_ADMIN')",
+            input: UserChangeDataDto::class,
         ),
         new Delete(
             controller: DeleteAction::class,
@@ -129,7 +137,7 @@ class User implements
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\Email]
-    #[Groups(['users:read', 'user:write', 'user:put:write', 'user:isUniqueEmail:write'])]
+    #[Groups(['users:read', 'user:write', 'user:isUniqueEmail:write'])]
     private ?string $email = null;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -157,6 +165,10 @@ class User implements
 
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Certificate::class)]
     private Collection $certificates;
+
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    #[Groups(['users:read'])]
+    private ?Person $person = null;
 
     public function __construct()
     {
@@ -288,29 +300,29 @@ class User implements
     }
 
     /**
-     * @return Collection<int, Person>
+     * @return Collection<int, Course>
      */
-    public function getPeople(): Collection
+    public function getCourses(): Collection
     {
-        return $this->people;
+        return $this->courses;
     }
 
-    public function addPerson(Person $person): self
+    public function addCourse(Course $course): self
     {
-        if (!$this->people->contains($person)) {
-            $this->people->add($person);
-            $person->setCreatedBy($this);
+        if (!$this->courses->contains($course)) {
+            $this->courses->add($course);
+            $course->setCreatedBy($this);
         }
 
         return $this;
     }
 
-    public function removePerson(Person $person): self
+    public function removeCourse(Course $course): self
     {
-        if ($this->people->removeElement($person)) {
+        if ($this->courses->removeElement($course)) {
             // set the owning side to null (unless already changed)
-            if ($person->getCreatedBy() === $this) {
-                $person->setCreatedBy(null);
+            if ($course->getCreatedBy() === $this) {
+                $course->setCreatedBy(null);
             }
         }
 
@@ -346,4 +358,22 @@ class User implements
 
         return $this;
     }
+
+    public function getPerson(): ?Person
+    {
+        return $this->person;
+    }
+
+    public function setPerson(Person $person): self
+    {
+        // set the owning side of the relation if necessary
+        if ($person->getUser() !== $this) {
+            $person->setUser($this);
+        }
+
+        $this->person = $person;
+
+        return $this;
+    }
+
 }

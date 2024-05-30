@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="{{ cssPath }}" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <span class="text year">{{ certificate_year }}</span>
+    <span class="text name">{{ givenName }} {{ familyName }}</span>
+    <span class="text course-name">{{ courseName }}</span>
+    <img class="qr-code" src="data:image/png;base64,{{ image_qr_code }}" alt="QR Code">
+    <img class="signature" src="{{ signature }}" alt="Signature">
+    <img class="image_logo_name" src="{{ image_logo_name }}" alt="Logo Name">
+    <img class="image_logo" src="{{ image_logo }}" alt="Logo">
+    <img class="certificate" src="{{ image_base }}" alt="Certificate Template">
+</div>
+</body>
+</html>
