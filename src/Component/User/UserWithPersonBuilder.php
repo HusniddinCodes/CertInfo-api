@@ -22,11 +22,11 @@ readonly class UserWithPersonBuilder
 
     public function make(string $email, string $password, string $familyName, string $givenName, ?MediaObject $avatar): User
     {
-
         $user = $this->userFactory->create($email, $password);
         $person = $this->personFactory->create($user, $familyName, $givenName, $avatar);
         $this->userManager->save($user);
         $this->personManager->save($person);
+
         return $user;
     }
 }

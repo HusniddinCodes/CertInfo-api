@@ -20,8 +20,7 @@ class CertificateFactory
         string $practiceDescription,
         string $certificateDefense,
         User $createdBy
-    ): Certificate
-    {
+    ): Certificate {
         return (new Certificate())
             ->setOwner($user)
             ->setCourse($course)

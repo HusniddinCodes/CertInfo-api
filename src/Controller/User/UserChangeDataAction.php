@@ -25,7 +25,7 @@ class UserChangeDataAction extends AbstractController
         $userEmail = $userRepository->findOneByEmail($userChangeDataDto->getEmail());
 
         if ($userEmail instanceof User && $userChangeDataDto->getEmail() !== $previousEmail) {
-            throw new UnprocessableEntityHttpException('Bunday email tizmda mavjud');
+            throw new UnprocessableEntityHttpException('This email is already used');
         }
 
         $user->setEmail($userChangeDataDto->getEmail());

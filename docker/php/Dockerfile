@@ -1,6 +1,7 @@
 FROM php:8.2.0-fpm
 
 RUN apt-get update && apt-get install -y \
+        wkhtmltopdf \
         cron \
         git \
         libzip-dev \
@@ -32,9 +33,6 @@ RUN apt-get update && apt-get install -y \
 	     # pdo_pgsql \
 	     # soap \
 	&& curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-RUN apt-get update && apt-get install -y \
-    wkhtmltopdf
 
 # for supervisor & redis
 # RUN apt-get install -y supervisor && pecl install -o -f redis && rm -rf /tmp/pear && docker-php-ext-enable redis

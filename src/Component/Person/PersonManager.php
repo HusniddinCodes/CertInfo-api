@@ -12,5 +12,4 @@ use App\Entity\Person;
  */
 class PersonManager extends AbstractManager
 {
-
 }

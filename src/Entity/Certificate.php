@@ -39,7 +39,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     normalizationContext: ['groups' => ['certificate:read']],
     denormalizationContext: ['groups' => ['certificate:write']]
-
 )]
 class Certificate implements
     CreatedAtSettableInterface,

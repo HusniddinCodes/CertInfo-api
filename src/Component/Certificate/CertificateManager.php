@@ -13,5 +13,4 @@ use App\Entity\Certificate;
 
 class CertificateManager extends AbstractManager
 {
-
 }
