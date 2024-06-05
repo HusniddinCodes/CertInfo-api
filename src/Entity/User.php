@@ -16,6 +16,7 @@ use App\Component\User\Dtos\RefreshTokenRequestDto;
 use App\Component\User\Dtos\SignUpRequestDto;
 use App\Component\User\Dtos\TokensDto;
 use App\Component\User\Dtos\UserChangeDataDto;
+use App\Component\User\Dtos\UserChangePasswordDto;
 use App\Controller\DeleteAction;
 use App\Controller\User\UserAboutMeAction;
 use App\Controller\User\UserAuthAction;
@@ -109,8 +110,10 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             denormalizationContext: ['groups' => ['user:changePassword:write']],
             security: "object == user || is_granted('ROLE_ADMIN')",
+            input: UserChangePasswordDto::class,
             name: 'changePassword',
         ),
+
     ],
     normalizationContext: ['groups' => ['user:read', 'users:read']],
     denormalizationContext: ['groups' => ['user:write']],
@@ -137,7 +140,7 @@ class User implements
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\Email]
-    #[Groups(['users:read', 'user:write', 'user:isUniqueEmail:write'])]
+    #[Groups(['users:read', 'user:write', 'user:isUniqueEmail:write', 'certificate:forId:read'])]
     private ?string $email = null;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -167,7 +170,7 @@ class User implements
     private Collection $certificates;
 
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
-    #[Groups(['users:read'])]
+    #[Groups(['users:read', 'certificate:forId:read'])]
     private ?Person $person = null;
 
     public function __construct()

@@ -33,11 +33,11 @@ class Person implements
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['persons:read', 'person:write', 'users:read'])]
+    #[Groups(['persons:read', 'person:write', 'users:read', 'certificate:forId:read'])]
     private ?string $givenName = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['persons:read', 'person:write', 'users:read'])]
+    #[Groups(['persons:read', 'person:write', 'users:read', 'certificate:forId:read'])]
     private ?string $familyName = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
