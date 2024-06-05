@@ -21,9 +21,9 @@ RUN apt-get update && apt-get install -y \
         # for Imagick
         libmagickwand-dev \
     && docker-php-ext-configure gd \
-        --with-webp \
-        --with-jpeg \
-        --with-freetype \
+            --with-webp \
+            --with-jpeg \
+            --with-freetype \
     && docker-php-ext-configure intl \
     && docker-php-ext-install \
              zip \
