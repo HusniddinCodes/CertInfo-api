@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y \
             --with-jpeg \
             --with-freetype \
     && docker-php-ext-configure intl \
-    && docker-php-ext-install \
+        && docker-php-ext-install \
              zip \
              bcmath \
              gd \
