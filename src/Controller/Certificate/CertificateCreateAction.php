@@ -10,6 +10,7 @@ use App\Component\Certificate\CertificateFactory;
 use App\Component\Certificate\CertificateManager;
 use App\Component\Certificate\CertificateWithUserBuilder;
 use App\Component\Certificate\PdfService;
+use App\Component\Certificate\PdfToJpgService;
 use App\Component\User\CurrentUser;
 use App\Component\User\UserWithPersonBuilder;
 use App\Controller\Base\AbstractController;
@@ -33,6 +34,7 @@ class CertificateCreateAction extends AbstractController
         UserRepository $userRepository,
         UserWithPersonBuilder $userWithPersonBuilder,
         PdfService $pdfService,
+        PdfToJpgService $pdfToJpgService,
         CertificateFactory $certificateFactory,
         CertificateManager $certificateManager,
         CertificateWithUserBuilder $certificateWithUserBuilder
@@ -61,7 +63,14 @@ class CertificateCreateAction extends AbstractController
             $request->headers->get('referer') . '/scan-qr/' . $certificate->getId()
         );
 
+        $certificateImage = $pdfToJpgService->pdfToImage(
+            $certificateCreateRequest->getFamilyName(),
+            $certificateCreateRequest->getGivenName(),
+            '/tmp/' . $pdf->file->getBasename()
+        );
+
         $certificate->setFile($pdf);
+        $certificate->setImgCertificate($certificateImage);
         $certificate->setUpdatedBy($this->getUser());
         $certificateManager->save($certificate, true);
 

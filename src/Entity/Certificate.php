@@ -29,7 +29,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     operations: [
         new Post(
             controller: CertificateCreateAction::class,
-            security: "is_granted('ROLE_ADMIN')",
+
             input: CertificateCreateDto::class,
         ),
         new GetCollection(security: "is_granted('ROLE_ADMIN')"),
@@ -106,6 +106,10 @@ class Certificate implements
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Groups(['certificate:read'])]
     private ?DateTimeInterface $deletedAt = null;
+
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?MediaObject $imgCertificate = null;
 
 
     public function getId(): ?int
@@ -253,6 +257,18 @@ class Certificate implements
     public function setDeletedAt(?DateTimeInterface $deletedAt): self
     {
         $this->deletedAt = $deletedAt;
+
+        return $this;
+    }
+
+    public function getImgCertificate(): ?MediaObject
+    {
+        return $this->imgCertificate;
+    }
+
+    public function setImgCertificate(MediaObject $imgCertificate): self
+    {
+        $this->imgCertificate = $imgCertificate;
 
         return $this;
     }

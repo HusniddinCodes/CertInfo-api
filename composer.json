@@ -8,6 +8,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "api-platform/core": "3.1.*",
+        "calcinai/php-imagick": "^0.1.2",
         "doctrine/annotations": "2.0.*",
         "doctrine/doctrine-bundle": "2.8.*",
         "doctrine/doctrine-migrations-bundle": "3.2.*",
