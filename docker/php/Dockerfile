@@ -18,20 +18,24 @@ RUN apt-get update && apt-get install -y \
         libfreetype6-dev \
         # for intld
         libicu-dev \
+        # for Imagick
+        libmagickwand-dev \
     && docker-php-ext-configure gd \
             --with-webp \
             --with-jpeg \
             --with-freetype \
     && docker-php-ext-configure intl \
-	&& docker-php-ext-install \
-	     zip \
-	     bcmath \
-	     gd \
-	     mysqli \
-	     pdo_mysql \
-	     intl \
-	     # pdo_pgsql \
-	     # soap \
+        && docker-php-ext-install \
+             zip \
+             bcmath \
+             gd \
+             mysqli \
+             pdo_mysql \
+             intl \
+             # pdo_pgsql \
+             # soap \
+        && pecl install imagick \
+        && docker-php-ext-enable imagick \
 	&& curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # for supervisor & redis

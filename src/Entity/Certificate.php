@@ -33,7 +33,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
             input: CertificateCreateDto::class,
         ),
         new GetCollection(security: "is_granted('ROLE_ADMIN')"),
-        new Get(security: "is_granted('ROLE_ADMIN')"),
+        new Get(normalizationContext: ['groups' => ['certificate:forId:read']]),
         new Put(security: "is_granted('ROLE_ADMIN')"),
         new Delete(controller: DeleteAction::class, security: "is_granted('ROLE_ADMIN')"),
     ],
@@ -55,29 +55,29 @@ class Certificate implements
 
     #[ORM\ManyToOne(inversedBy: 'certificates')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['certificate:read', 'certificate:write'])]
+    #[Groups(['certificate:read', 'certificate:write', 'certificate:forId:read'])]
     private ?User $owner = null;
 
     #[ORM\ManyToOne(targetEntity: "App\Entity\MediaObject", cascade: ["persist"])]
     #[ORM\JoinColumn(nullable: true)]
-    #[Groups(["certificate:read"])]
+    #[Groups(["certificate:read", 'certificate:forId:read'])]
     private ?MediaObject $file = null;
 
     #[ORM\ManyToOne(inversedBy: 'certificates')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['certificate:read', 'certificate:write'])]
+    #[Groups(['certificate:read', 'certificate:write', 'certificate:forId:read'])]
     private ?Course $course = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Groups(['certificate:read', 'certificate:write'])]
+    #[Groups(['certificate:read', 'certificate:write', 'certificate:forId:read'])]
     private ?\DateTimeInterface $courseFinishedDate = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['certificate:read', 'certificate:write'])]
+    #[Groups(['certificate:read', 'certificate:write', 'certificate:forId:read'])]
     private ?string $practiceDescription = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['certificate:read', 'certificate:write'])]
+    #[Groups(['certificate:read', 'certificate:write', 'certificate:forId:read'])]
     private ?string $certificateDefense = null;
 
     #[ORM\ManyToOne]
@@ -106,6 +106,11 @@ class Certificate implements
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Groups(['certificate:read'])]
     private ?DateTimeInterface $deletedAt = null;
+
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['certificate:read', 'certificate:forId:read'])]
+    private ?MediaObject $imgCertificate = null;
 
 
     public function getId(): ?int
@@ -253,6 +258,18 @@ class Certificate implements
     public function setDeletedAt(?DateTimeInterface $deletedAt): self
     {
         $this->deletedAt = $deletedAt;
+
+        return $this;
+    }
+
+    public function getImgCertificate(): ?MediaObject
+    {
+        return $this->imgCertificate;
+    }
+
+    public function setImgCertificate(MediaObject $imgCertificate): self
+    {
+        $this->imgCertificate = $imgCertificate;
 
         return $this;
     }
