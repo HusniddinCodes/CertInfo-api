@@ -15,8 +15,10 @@ use App\Component\User\CurrentUser;
 use App\Component\User\UserWithPersonBuilder;
 use App\Controller\Base\AbstractController;
 use App\Entity\Certificate;
+use App\Message\GreetingNewCertificateByEmail;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class CertificateCreateAction extends AbstractController
@@ -37,10 +39,12 @@ class CertificateCreateAction extends AbstractController
         PdfToJpgService $pdfToJpgService,
         CertificateFactory $certificateFactory,
         CertificateManager $certificateManager,
-        CertificateWithUserBuilder $certificateWithUserBuilder
+        CertificateWithUserBuilder $certificateWithUserBuilder,
+        MessageBusInterface $messageBus,
     ): Certificate {
         /** @var CertificateCreateDto $certificateCreateRequest */
         $certificateCreateRequest = $this->getDtoFromRequest($request, CertificateCreateDto::class);
+        $projectDirectory = $this->getParameter('kernel.project_dir');
 
         $certificate = $certificateWithUserBuilder->make(
             $certificateCreateRequest->getEmail(),
@@ -55,7 +59,7 @@ class CertificateCreateAction extends AbstractController
         );
 
         $pdf = $pdfService->generatePdf(
-            $this->getParameter('kernel.project_dir'),
+            $projectDirectory,
             $certificateCreateRequest->getCourseFinishedDate()->format('Y'),
             $certificateCreateRequest->getFamilyName(),
             $certificateCreateRequest->getGivenName(),
@@ -72,7 +76,17 @@ class CertificateCreateAction extends AbstractController
         $certificate->setFile($pdf);
         $certificate->setImgCertificate($certificateImage);
         $certificate->setUpdatedBy($this->getUser());
+
         $certificateManager->save($certificate, true);
+
+        $messageBus->dispatch(new GreetingNewCertificateByEmail(
+            $certificateCreateRequest->getEmail(),
+            $request->headers->get('referer') . '/scan-qr/' . $certificate->getId(),
+            $request->getSchemeAndHttpHost() . '/media/' . $certificate->getFile()->filePath,
+            $request->getSchemeAndHttpHost() . '/media/' . $certificateImage->filePath,
+            $certificateCreateRequest->getFamilyName(),
+            $certificateCreateRequest->getGivenName(),
+        ));
 
         return $certificate;
     }

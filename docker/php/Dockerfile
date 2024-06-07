@@ -38,8 +38,14 @@ RUN apt-get update && apt-get install -y \
         && docker-php-ext-enable imagick \
 	&& curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+RUN echo '<?xml version="1.0" encoding="UTF-8"?> \
+<!DOCTYPE policymap PUBLIC "-//ImageMagick//DTD Policy File//EN" "http://www.imagemagick.org/script/policy.xml"> \
+<policymap> \
+  <policy domain="coder" rights="read|write" pattern="PDF" /> \
+</policymap>' > /etc/ImageMagick-6/policy.xml
+
 # for supervisor & redis
-# RUN apt-get install -y supervisor && pecl install -o -f redis && rm -rf /tmp/pear && docker-php-ext-enable redis
+RUN apt-get install -y supervisor && pecl install -o -f redis && rm -rf /tmp/pear && docker-php-ext-enable redis
 
 WORKDIR /var/www/html
 
