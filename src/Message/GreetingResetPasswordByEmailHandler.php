@@ -6,9 +6,8 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-
 #[AsMessageHandler]
-class GreetingNewCertificateByEmailHandler
+class GreetingResetPasswordByEmailHandler
 {
     private MailerInterface $mailer;
 
@@ -17,18 +16,17 @@ class GreetingNewCertificateByEmailHandler
         $this->mailer = $mailer;
     }
 
-    public function __invoke(GreetingNewCertificateByEmail $message): void
+    public function __invoke(GreetingResetPasswordByEmail $message): void
     {
         $email = (new TemplatedEmail())
             //todo  'mailer uchun email adresni o'zgartirish kerak'
             ->from('change@me.uz')
             ->to($message->getEmail())
-            ->subject('Hurmatli ' . $message->getFamilyName() . ' ' . $message->getGivenName() . ', sizga Kadirov akademiyasi tomonidan sertifikat taqdim etildi!')
-            ->htmlTemplate('send-certificate.html.twig')
+            ->subject('Parolni yangilash')
+            ->htmlTemplate('resetPassword.html.twig')
             ->context([
+                'token' => $message->getToken(),
                 'url' => $message->getUrl(),
-                'download' => $message->getDownload(),
-                'img' => $message->getImage(),
             ]);
 
         $this->mailer->send($email);

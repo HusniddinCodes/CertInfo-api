@@ -17,6 +17,7 @@ use App\Component\User\Dtos\SignUpRequestDto;
 use App\Component\User\Dtos\TokensDto;
 use App\Component\User\Dtos\UserChangeDataDto;
 use App\Component\User\Dtos\UserChangePasswordDto;
+use App\Component\User\Dtos\UserResetPasswordDto;
 use App\Controller\DeleteAction;
 use App\Controller\User\UserAboutMeAction;
 use App\Controller\User\UserAuthAction;
@@ -25,6 +26,8 @@ use App\Controller\User\UserChangeDataAction;
 use App\Controller\User\UserChangePasswordAction;
 use App\Controller\User\UserCreateAction;
 use App\Controller\User\UserIsUniqueEmailAction;
+use App\Controller\User\UserRequestResetPasswordAction;
+use App\Controller\User\UserResetPasswordAction;
 use App\Entity\Interfaces\CreatedAtSettableInterface;
 use App\Entity\Interfaces\DeletedAtSettableInterface;
 use App\Entity\Interfaces\UpdatedAtSettableInterface;
@@ -102,6 +105,22 @@ use Symfony\Component\Validator\Constraints as Assert;
             denormalizationContext: ['groups' => ['user:isUniqueEmail:write']],
             name: 'isUniqueEmail',
         ),
+        new Post(
+            uriTemplate: 'users/request_reset_password',
+            controller: UserRequestResetPasswordAction::class,
+            openapi: new Operation(
+                summary: 'Checks email for uniqueness'
+            ),
+            denormalizationContext: ['groups' => ['user:resetPassword:write']],
+            name: 'requestResetPassword',
+        ),
+        new Post(
+            uriTemplate: '/users/reset-password',
+            controller: UserResetPasswordAction::class,
+            denormalizationContext: ['groups' => ['user:resetPassword:write']],
+            input: UserResetPasswordDto::class,
+            name: 'reset-password',
+        ),
         new Put(
             uriTemplate: 'users/{id}/password',
             controller: UserChangePasswordAction::class,
@@ -140,7 +159,7 @@ class User implements
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\Email]
-    #[Groups(['users:read', 'user:write', 'user:isUniqueEmail:write', 'certificate:forId:read'])]
+    #[Groups(['users:read', 'user:write', 'user:isUniqueEmail:write','user:resetPassword:write', 'certificate:forId:read'])]
     private ?string $email = null;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -173,10 +192,14 @@ class User implements
     #[Groups(['users:read', 'certificate:forId:read'])]
     private ?Person $person = null;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: SecretKey::class)]
+    private Collection $secretKeys;
+
     public function __construct()
     {
         $this->courses = new ArrayCollection();
         $this->certificates = new ArrayCollection();
+        $this->secretKeys = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -379,4 +402,29 @@ class User implements
         return $this;
     }
 
+    public function getSecretKeys(): Collection
+    {
+        return $this->secretKeys;
+    }
+
+    public function addSecretKey(SecretKey $secretKey): self
+    {
+        if (!$this->secretKeys->contains($secretKey)) {
+            $this->secretKeys->add($secretKey);
+            $secretKey->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSecretKey(SecretKey $secretKey): self
+    {
+        if ($this->secretKeys->removeElement($secretKey)) {
+            if ($secretKey->getUser() === $this) {
+                $secretKey->setUser(null);
+            }
+        }
+
+        return $this;
+    }
 }
