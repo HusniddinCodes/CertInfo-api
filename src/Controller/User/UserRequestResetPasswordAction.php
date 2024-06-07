@@ -20,8 +20,8 @@ class UserRequestResetPasswordAction extends AbstractController
 {
     public function __invoke(
         Request             $request,
-        SecretKeyFactory    $tokenFactory,
-        SecretKeyManager    $registerTokenManager,
+        SecretKeyFactory    $secretKeyFactory,
+        SecretKeyManager    $secretKeyManager,
         UserRepository      $userRepository,
         SecretKeyRepository $secretKeyRepository,
         MessageBusInterface $messageBus,
@@ -36,12 +36,12 @@ class UserRequestResetPasswordAction extends AbstractController
         }
 
         $this->checkExistingToken($secretKeyRepository, $user);
-        $registerToken = $tokenFactory->create($user);
+        $secretKey = $secretKeyFactory->create($user);
 
-        $registerTokenManager->save($registerToken, true);
+        $secretKeyManager->save($secretKey, true);
         $url = $request->headers->get('referer');
 
-        $messageBus->dispatch(new GreetingResetPasswordByEmail($email, $registerToken->getSecretKey(), $url));
+        $messageBus->dispatch(new GreetingResetPasswordByEmail($email, $secretKey->getSecretKey(), $url));
 
         return new JsonResponse(['message' => "A link to reset your password has been sent to your email."]);
     }
@@ -50,9 +50,9 @@ class UserRequestResetPasswordAction extends AbstractController
         SecretKeyRepository $secretKeyRepository,
         User $user
     ): void {
-        $token = $secretKeyRepository->findOneBy(['user' => $user]);
-        if ($token) {
-            $secretKeyRepository->remove($token);
+        $secretKey = $secretKeyRepository->findOneBy(['user' => $user]);
+        if ($secretKey) {
+            $secretKeyRepository->remove($secretKey);
         }
     }
 }

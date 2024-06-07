@@ -9,15 +9,14 @@ use App\Entity\User;
 
 readonly class SecretKeyFactory
 {
+    public function __construct(private GenerateSecurityKey $generateSecurityKey)
+    {
+    }
+
     public function create(User $user): SecretKey
     {
         return (new SecretKey())
-            ->setSecretKey($this->generateToken())
+            ->setSecretKey($this->generateSecurityKey->generate())
             ->setUser($user);
-    }
-
-    private function generateToken(): string
-    {
-        return bin2hex(random_bytes(32));
     }
 }

@@ -109,7 +109,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: 'users/request_reset_password',
             controller: UserRequestResetPasswordAction::class,
             openapi: new Operation(
-                summary: 'Checks email for uniqueness'
+                summary: 'Request for reset password'
             ),
             denormalizationContext: ['groups' => ['user:resetPassword:write']],
             name: 'requestResetPassword',
