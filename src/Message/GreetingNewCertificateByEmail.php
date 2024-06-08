@@ -15,6 +15,7 @@ class GreetingNewCertificateByEmail
         private string $givenName,
     ) {
     }
+
     public function getEmail(): string
     {
         return $this->email;

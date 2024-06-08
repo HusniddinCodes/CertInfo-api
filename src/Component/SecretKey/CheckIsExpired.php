@@ -19,11 +19,12 @@ class CheckIsExpired
         $user = $secretKey->getUser();
 
         if (!$user) {
-            throw new HttpException(404, 'This user does not exist in the system!');
+            throw new BadRequestHttpException('This user does not exist in the system!');
         }
 
         $createdAt = $secretKey->getCreatedAt();
         $interval = (new DateTime())->diff($createdAt);
+
         if ($interval->h >= 1) {
             $secretKeyRepository->remove($secretKey, true);
             throw new BadRequestHttpException('The link is out of date');

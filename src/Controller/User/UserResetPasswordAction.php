@@ -13,11 +13,13 @@ use App\Repository\SecretKeyRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserResetPasswordAction extends AbstractController
 {
+    public const MIN_LENGTH_PASSWORD = 6;
+
     public function __invoke(
         UserRepository $userRepository,
         SecretKeyRepository $secretKeyRepository,
@@ -31,14 +33,14 @@ class UserResetPasswordAction extends AbstractController
         $newPassword = $userResetPasswordDto->getNewPassword() ?? null;
 
         if (null === $secretKeyString || null === $newPassword) {
-            throw new HttpException(400, 'Error');
+            throw new BadRequestHttpException('Error');
         }
 
-        if (strlen($newPassword) < 6) {
-            throw new HttpException(400, "Password must contain at least 6 characters");
+        if (strlen($newPassword) < self::MIN_LENGTH_PASSWORD) {
+            throw new BadRequestHttpException("Password must contain at least " . self::MIN_LENGTH_PASSWORD . " characters");
         }
 
-        $secretKey = $secretKeyRepository->findOneBy(['secretKey' => $secretKeyString]);
+        $secretKey = $secretKeyRepository->findOneBySecurityKey($secretKeyString);
         $checkIsExpired->isExpiredResetPasswordSecretKey($secretKey, $secretKeyRepository);
         $secretKeysDto = $secretKeysCreator->create($secretKey->getUser());
 

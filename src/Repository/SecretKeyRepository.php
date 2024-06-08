@@ -42,11 +42,11 @@ class SecretKeyRepository extends ServiceEntityRepository
         }
     }
 
-    public function findOneToken(string $token): ?SecretKey
+    public function findOneBySecurityKey(string $securityKey): ?SecretKey
     {
-        return $this->createQueryBuilder('rt')
-            ->andWhere('rt.token = :token')
-            ->setParameter('token', $token)
+        return $this->createQueryBuilder('sk')
+            ->andWhere('sk.securityKey = :securityKey')
+            ->setParameter('securityKey', $securityKey)
             ->getQuery()
             ->getOneOrNullResult();
     }
