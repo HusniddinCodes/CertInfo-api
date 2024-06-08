@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\SecretKey;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -42,11 +43,20 @@ class SecretKeyRepository extends ServiceEntityRepository
         }
     }
 
-    public function findOneBySecurityKey(string $securityKey): ?SecretKey
+    public function findOneBySecretKey(string $secretKey): ?SecretKey
     {
         return $this->createQueryBuilder('sk')
-            ->andWhere('sk.securityKey = :securityKey')
-            ->setParameter('securityKey', $securityKey)
+            ->andWhere('sk.secretKey = :secretKey')
+            ->setParameter('secretKey', $secretKey)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findOneByUser(User $user): ?SecretKey
+    {
+        return $this->createQueryBuilder('sk')
+            ->andWhere('sk.user = :user')
+            ->setParameter('user', $user)
             ->getQuery()
             ->getOneOrNullResult();
     }

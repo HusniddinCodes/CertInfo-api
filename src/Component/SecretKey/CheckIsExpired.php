@@ -10,6 +10,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class CheckIsExpired
 {
+    public const TIME_TO_EXPIRE = 1;
+
     public function isExpiredResetPasswordSecretKey($secretKey, $secretKeyRepository): void
     {
         if ($secretKey === null) {
@@ -18,14 +20,14 @@ class CheckIsExpired
 
         $user = $secretKey->getUser();
 
-        if (!$user) {
+        if ($user === null) {
             throw new BadRequestHttpException('This user does not exist in the system!');
         }
 
         $createdAt = $secretKey->getCreatedAt();
         $interval = (new DateTime())->diff($createdAt);
 
-        if ($interval->h >= 1) {
+        if ($interval->h >= self::TIME_TO_EXPIRE) {
             $secretKeyRepository->remove($secretKey, true);
             throw new BadRequestHttpException('The link is out of date');
         }

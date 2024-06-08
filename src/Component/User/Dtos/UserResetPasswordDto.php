@@ -15,8 +15,7 @@ readonly class UserResetPasswordDto
 
         #[Assert\Length(min: 6, minMessage: 'Password must be at least {{ limit }} characters long')]
         #[Groups(['user:resetPassword:write'])]
-        private string $newPassword)
-    {
+        private string $newPassword) {
     }
 
     public function getSecretKey(): string

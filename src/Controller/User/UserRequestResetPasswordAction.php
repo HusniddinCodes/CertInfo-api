@@ -49,7 +49,8 @@ class UserRequestResetPasswordAction extends AbstractController
         SecretKeyRepository $secretKeyRepository,
         User $user
     ): void {
-        $secretKey = $secretKeyRepository->findOneBy(['user' => $user]);
+        $secretKey = $secretKeyRepository->findOneByUser($user);
+
         if ($secretKey) {
             $secretKeyRepository->remove($secretKey);
         }

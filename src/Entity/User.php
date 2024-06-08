@@ -121,7 +121,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             controller: UserResetPasswordAction::class,
             denormalizationContext: ['groups' => ['user:resetPassword:write']],
             input: UserResetPasswordDto::class,
-            name: 'reset-password',
+            name: 'resetPassword',
         ),
         new Put(
             uriTemplate: 'users/{id}/password',

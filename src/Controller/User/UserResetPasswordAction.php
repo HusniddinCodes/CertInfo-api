@@ -33,14 +33,14 @@ class UserResetPasswordAction extends AbstractController
         $newPassword = $userResetPasswordDto->getNewPassword() ?? null;
 
         if (null === $secretKeyString || null === $newPassword) {
-            throw new BadRequestHttpException('Error');
+            throw new BadRequestHttpException('Error when resetting password!');
         }
 
         if (strlen($newPassword) < self::MIN_LENGTH_PASSWORD) {
             throw new BadRequestHttpException("Password must contain at least " . self::MIN_LENGTH_PASSWORD . " characters");
         }
 
-        $secretKey = $secretKeyRepository->findOneBySecurityKey($secretKeyString);
+        $secretKey = $secretKeyRepository->findOneBySecretKey($secretKeyString);
         $checkIsExpired->isExpiredResetPasswordSecretKey($secretKey, $secretKeyRepository);
         $secretKeysDto = $secretKeysCreator->create($secretKey->getUser());
 
