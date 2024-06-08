@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
@@ -159,7 +161,7 @@ class User implements
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\Email]
-    #[Groups(['users:read', 'user:write', 'user:isUniqueEmail:write','user:resetPassword:write', 'certificate:forId:read'])]
+    #[Groups(['users:read', 'user:write', 'user:isUniqueEmail:write','user:resetPassword:write', 'certificate:forId:read', 'certificate:read'])]
     private ?string $email = null;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -189,7 +191,7 @@ class User implements
     private Collection $certificates;
 
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
-    #[Groups(['users:read', 'certificate:forId:read'])]
+    #[Groups(['users:read', 'certificate:forId:read', 'certificate:read'])]
     private ?Person $person = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: SecretKey::class)]

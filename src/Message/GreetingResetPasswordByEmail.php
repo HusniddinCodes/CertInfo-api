@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Message;
 
 readonly class GreetingResetPasswordByEmail
 {
     public function __construct(
         private string $email,
-        private string $token,
+        private string $secretKey,
         private string $url
     ) {
     }
@@ -16,9 +18,9 @@ readonly class GreetingResetPasswordByEmail
         return $this->email;
     }
 
-    public function getToken(): string
+    public function getSecretKey(): string
     {
-        return $this->token;
+        return $this->secretKey;
     }
 
     public function getUrl(): string

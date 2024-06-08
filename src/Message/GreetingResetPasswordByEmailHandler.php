@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Message;
 
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -25,7 +27,7 @@ class GreetingResetPasswordByEmailHandler
             ->subject('Parolni yangilash')
             ->htmlTemplate('resetPassword.html.twig')
             ->context([
-                'token' => $message->getToken(),
+                'secretKey' => $message->getSecretKey(),
                 'url' => $message->getUrl(),
             ]);
 
