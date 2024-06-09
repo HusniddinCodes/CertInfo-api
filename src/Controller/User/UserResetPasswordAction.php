@@ -18,7 +18,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserResetPasswordAction extends AbstractController
 {
-    public const MIN_LENGTH_PASSWORD = 6;
+    private const MIN_LENGTH_PASSWORD = 6;
 
     public function __invoke(
         UserRepository $userRepository,
