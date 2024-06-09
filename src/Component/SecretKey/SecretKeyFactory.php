@@ -9,8 +9,7 @@ use App\Entity\User;
 
 readonly class SecretKeyFactory
 {
-    public function __construct(private GenerateSecurityKey $generateSecurityKey)
-    {
+    public function __construct(private GenerateSecurityKey $generateSecurityKey) {
     }
 
     public function create(User $user): SecretKey

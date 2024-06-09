@@ -13,8 +13,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 class GreetingNewCertificateByEmailHandler
 {
-    public function __construct(private readonly MailerInterface $mailer, private readonly ParameterBagInterface $params)
-    {
+    public function __construct(private readonly MailerInterface $mailer, private readonly ParameterBagInterface $params) {
     }
 
     public function __invoke(GreetingNewCertificateByEmail $message): void

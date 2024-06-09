@@ -12,8 +12,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 class GreetingResetPasswordByEmailHandler
 {
-    public function __construct(private readonly MailerInterface $mailer, private readonly ParameterBagInterface $params)
-    {
+    public function __construct(private readonly MailerInterface $mailer, private readonly ParameterBagInterface $params) {
     }
 
     public function __invoke(GreetingResetPasswordByEmail $message): void
