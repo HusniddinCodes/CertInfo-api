@@ -30,7 +30,7 @@ class UserRequestResetPasswordAction extends AbstractController
         $email = $data['email'] ?? null;
         $user = $userRepository->findOneByEmail($email);
 
-        if (!$user) {
+        if ($user === null) {
             throw new BadRequestHttpException("This user does not exist in the system!");
         }
 

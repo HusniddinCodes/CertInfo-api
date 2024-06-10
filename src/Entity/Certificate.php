@@ -43,7 +43,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Delete(controller: DeleteAction::class, security: "is_granted('ROLE_ADMIN')"),
     ],
     normalizationContext: ['groups' => ['certificate:read']],
-    denormalizationContext: ['groups' => ['certificate:write']]
+    denormalizationContext: ['groups' => ['certificate:write']],
+    paginationItemsPerPage: 8
 )]
 #[ApiFilter(DateFilter::class, properties: ['courseFinishedDate'])]
 #[ApiFilter(SearchMultiFieldsFilter::class, properties: [

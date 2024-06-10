@@ -28,9 +28,9 @@ readonly class PdfService
         string $url
     ): MediaObject {
         $imagePath = $parameter . '/public/assets/images/certificateTemplate.svg';
-        $imageLogo = $parameter . '/public/assets/images/kadirov-logo.svg';
-        $imageLogoName = $parameter . '/public/assets/images/KadirovDev.svg';
-        $signature = $parameter . '/public/assets/images/Signature.svg';
+        $imageLogo = $parameter . '/public/assets/images/kadirovLogo.svg';
+        $imageLogoName = $parameter . '/public/assets/images/kadirovDev.svg';
+        $signature = $parameter . '/public/assets/images/signature.svg';
         $cssPath = $parameter . '/public/assets/styles/style.css';
         $imageQrCode = $this->qrCodeGenerateService->generate($url);
 
