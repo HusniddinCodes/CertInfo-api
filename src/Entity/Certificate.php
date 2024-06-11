@@ -124,7 +124,7 @@ class Certificate implements
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: true)]
-    #[Groups(['certificate:read', 'certificate:forId:read'])]
+    #[Groups(['certificate:read', 'certificate:forId:read', 'certificate:forId:read'])]
     private ?MediaObject $imgCertificate = null;
 
 
