@@ -15,10 +15,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: PersonRepository::class)]
-#[ApiResource(
-    normalizationContext: ['groups' => ['person:read', 'persons:read']],
-    denormalizationContext: ['groups' => ['person:write']],
-)]
 class Person implements
     CreatedAtSettableInterface,
     UpdatedAtSettableInterface,
@@ -33,11 +29,11 @@ class Person implements
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['persons:read', 'person:write', 'users:read', 'certificate:forId:read'])]
+    #[Groups(['persons:read', 'person:write', 'users:read', 'certificate:forId:read', 'certificate:read'])]
     private ?string $givenName = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['persons:read', 'person:write', 'users:read', 'certificate:forId:read'])]
+    #[Groups(['persons:read', 'person:write', 'users:read', 'certificate:forId:read', 'certificate:read'])]
     private ?string $familyName = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

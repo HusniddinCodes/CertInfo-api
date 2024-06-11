@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\User;
@@ -21,7 +23,11 @@ class UserRepository extends ServiceEntityRepository
 
     public function findOneByEmail(string $email): ?User
     {
-        return $this->findOneBy(['email' => $email]);
+        return $this->createQueryBuilder('u')
+            ->where('u.email = :email')
+            ->setParameter('email', $email)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
     // /**

@@ -5,6 +5,7 @@ services:
         volumes:
             - ./:/var/www/html
             - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+            - ./docker/ImageMagick-6/policy.xml:/etc/ImageMagick-6/policy.xml
             # if you use supervisor
             #- ./docker/php/supervisor/messenger-worker.conf:/etc/supervisor/conf.d/messenger-worker.conf
         build: ./docker/php
@@ -37,7 +38,7 @@ services:
         ports:
             - 127.0.0.1:${DOCKER_DATABASE_PORT}:3306
 
-#    redis:
-#        image: redis:6.0.10-alpine
-#        restart: unless-stopped
-#        container_name: ${DOCKER_PROJECT_NAME}_redis
+    redis:
+        image: redis:6.0.10-alpine
+        restart: unless-stopped
+        container_name: ${DOCKER_PROJECT_NAME}_redis

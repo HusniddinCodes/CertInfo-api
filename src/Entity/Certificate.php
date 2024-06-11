@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -17,6 +21,7 @@ use App\Entity\Interfaces\DeletedAtSettableInterface;
 use App\Entity\Interfaces\DeletedBySettableInterface;
 use App\Entity\Interfaces\UpdatedAtSettableInterface;
 use App\Entity\Interfaces\UpdatedBySettableInterface;
+use App\Filter\SearchMultiFieldsFilter;
 use App\Repository\CertificateRepository;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
@@ -38,8 +43,18 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Delete(controller: DeleteAction::class, security: "is_granted('ROLE_ADMIN')"),
     ],
     normalizationContext: ['groups' => ['certificate:read']],
-    denormalizationContext: ['groups' => ['certificate:write']]
+    denormalizationContext: ['groups' => ['certificate:write']],
+    paginationItemsPerPage: 8
 )]
+#[ApiFilter(DateFilter::class, properties: ['courseFinishedDate'])]
+#[ApiFilter(SearchMultiFieldsFilter::class, properties: [
+    'owner.email',
+    'owner.person.familyName',
+    'owner.person.givenName',
+    'course.name',
+    'practiceDescription',
+    'certificateDefense'
+])]
 class Certificate implements
     CreatedAtSettableInterface,
     CreatedBySettableInterface,
@@ -109,7 +124,7 @@ class Certificate implements
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: true)]
-    #[Groups(['certificate:read', 'certificate:forId:read'])]
+    #[Groups(['certificate:read', 'certificate:forId:read', 'certificate:forId:read'])]
     private ?MediaObject $imgCertificate = null;
 
 

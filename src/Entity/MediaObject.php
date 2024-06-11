@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiProperty;
@@ -63,6 +65,7 @@ class MediaObject
     public ?File $file = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['media_object:read', 'certificate:read', 'certificate:forId:read'])]
     public ?string $filePath = null;
 
     public function getId(): ?int
