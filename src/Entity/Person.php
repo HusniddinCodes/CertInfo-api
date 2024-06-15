@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Entity\Interfaces\CreatedAtSettableInterface;
 use App\Entity\Interfaces\DeletedAtSettableInterface;
 use App\Entity\Interfaces\DeletedBySettableInterface;
@@ -25,7 +24,6 @@ class Person implements
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['person:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -57,6 +55,7 @@ class Person implements
     private ?User $deledetBy = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[Groups(['certificate:forId:read', 'certificate:read'])]
     private ?MediaObject $avatar = null;
 
     public function getId(): ?int

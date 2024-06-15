@@ -44,7 +44,7 @@ class Course implements
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['course:read', 'course:write', 'certificate:forId:read'])]
+    #[Groups(['course:read', 'course:write','certificate:read', 'certificate:forId:read'])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
