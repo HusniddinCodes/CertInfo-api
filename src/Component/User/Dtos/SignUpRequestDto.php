@@ -10,8 +10,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 readonly class SignUpRequestDto
 {
     public function __construct(
-        #[Assert\NotBlank(message: "bo'sh")]
         #[Assert\Email]
+        #[Assert\NotBlank(message: 'Email cannot be blank.')]
         #[Groups(['user:write'])]
         private string $email,
 
@@ -20,11 +20,11 @@ readonly class SignUpRequestDto
         private string $password,
 
         #[Groups(['user:write'])]
-        #[Assert\NotBlank]
+        #[Assert\NotBlank(message: 'familyName cannot be blank.')]
         private string $familyName,
 
         #[Groups(['user:write'])]
-        #[Assert\NotBlank]
+        #[Assert\NotBlank(message: 'givenName cannot be blank.')]
         private string $givenName,
     ) {
     }

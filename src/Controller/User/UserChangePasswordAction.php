@@ -30,6 +30,7 @@ class UserChangePasswordAction extends AbstractController
         UserPasswordHasherInterface $userPasswordHasher ,
         int $id
     ): User {
+        $this->validate($userChangePasswordDto);
         $oldPassword = $userChangePasswordDto->getOldPassword();
 
         if (!$userPasswordHasher->isPasswordValid($user, $oldPassword)) {

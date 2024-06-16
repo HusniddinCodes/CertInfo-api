@@ -9,9 +9,9 @@ use App\Component\SecretKey\CheckIsExpired;
 use App\Component\User\Dtos\UserResetPasswordDto;
 use App\Component\User\TokensCreator;
 use App\Component\User\UserManager;
+use App\Controller\Base\AbstractController;
 use App\Repository\SecretKeyRepository;
 use App\Repository\UserRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -29,6 +29,7 @@ class UserResetPasswordAction extends AbstractController
         UserManager $userManager,
         UserResetPasswordDto $userResetPasswordDto
     ): JsonResponse {
+        $this->validate($userResetPasswordDto);
         $secretKeyString = $userResetPasswordDto->getSecretKey() ?? null;
         $newPassword = $userResetPasswordDto->getNewPassword() ?? null;
 
@@ -37,7 +38,8 @@ class UserResetPasswordAction extends AbstractController
         }
 
         if (strlen($newPassword) < self::MIN_LENGTH_PASSWORD) {
-            throw new BadRequestHttpException("Password must contain at least " . self::MIN_LENGTH_PASSWORD . " characters");
+            throw new BadRequestHttpException('Password must contain at least ' . self::MIN_LENGTH_PASSWORD . ' characters'
+            );
         }
 
         $secretKey = $secretKeyRepository->findOneBySecretKey($secretKeyString);
