@@ -7,6 +7,7 @@ parameters:
     tokens_creator.access_expiration_period: '%env(TOKEN_ACCESS_EXPIRATION_PERIOD)%'
     tokens_creator.refresh_expiration_period: '%env(TOKEN_REFRESH_EXPIRATION_PERIOD)%'
     mailer_from_address: '%env(MAILER_FROM_ADDRESS)%'
+    default_password_for_student: '%env(DEFAULT_PASSWORD_FOR_STUDENT)%'
 
 services:
     Vich\UploaderBundle\Naming\SlugNamer:

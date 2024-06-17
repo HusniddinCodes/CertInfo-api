@@ -19,7 +19,8 @@ class CertificateFactory
         ?MediaObject $mediaObject,
         string $practiceDescription,
         string $certificateDefense,
-        User $createdBy
+        User $createdBy,
+        string $certificateHash
     ): Certificate {
         return (new Certificate())
             ->setOwner($user)
@@ -28,6 +29,7 @@ class CertificateFactory
             ->setFile($mediaObject)
             ->setPracticeDescription($practiceDescription)
             ->setCertificateDefense($certificateDefense)
-            ->setCreatedBy($createdBy);
+            ->setCreatedBy($createdBy)
+            ->setCertificateHash($certificateHash);
     }
 }

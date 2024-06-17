@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Component\Certificate;
 
+use App\Component\SecretKey\GenerateSecurityKey;
 use App\Component\User\UserWithPersonBuilder;
 use App\Entity\Certificate;
 use App\Entity\Course;
@@ -11,6 +12,7 @@ use App\Entity\MediaObject;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use DateTimeInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 readonly class CertificateWithUserBuilder
 {
@@ -18,7 +20,9 @@ readonly class CertificateWithUserBuilder
         private UserRepository $userRepository,
         private UserWithPersonBuilder $userWithPersonBuilder,
         private CertificateFactory $certificateFactory,
-        private CertificateManager $certificateManager
+        private CertificateManager $certificateManager,
+        private GenerateSecurityKey $generateSecurityKey,
+        private ParameterBagInterface $params
     ) {
     }
 
@@ -38,7 +42,7 @@ readonly class CertificateWithUserBuilder
         if (!$user) {
             $user = $this->userWithPersonBuilder->make(
                 $email,
-                '123456',
+                $this->params->get('default_password_for_student'),
                 $familyName,
                 $givenName,
                 $avatar
@@ -52,7 +56,8 @@ readonly class CertificateWithUserBuilder
             null,
             $practiceDescription,
             $certificateDefense,
-            $createdBy
+            $createdBy,
+            $this->generateSecurityKey->generate()
         );
 
         $this->certificateManager->save($certificate, true);
