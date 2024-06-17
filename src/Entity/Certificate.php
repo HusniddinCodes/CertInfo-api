@@ -66,6 +66,7 @@ class Certificate implements
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['certificate:forId:read', 'certificate:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'certificates')]
@@ -75,7 +76,7 @@ class Certificate implements
 
     #[ORM\ManyToOne(targetEntity: "App\Entity\MediaObject", cascade: ["persist"])]
     #[ORM\JoinColumn(nullable: true)]
-    #[Groups(["certificate:read", 'certificate:forId:read'])]
+    #[Groups(['certificate:forId:read'])]
     private ?MediaObject $file = null;
 
     #[ORM\ManyToOne(inversedBy: 'certificates')]
@@ -124,7 +125,7 @@ class Certificate implements
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: true)]
-    #[Groups(['certificate:read', 'certificate:forId:read', 'certificate:forId:read'])]
+    #[Groups(['certificate:forId:read'])]
     private ?MediaObject $imgCertificate = null;
 
 
