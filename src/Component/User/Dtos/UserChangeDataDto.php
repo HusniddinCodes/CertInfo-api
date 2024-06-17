@@ -12,15 +12,15 @@ readonly class UserChangeDataDto
 {
     public function __construct(
         #[Assert\Email]
-        #[Assert\NotBlank(message: "bo'sh")]
+        #[Assert\NotBlank(message: 'Email cannot be blank.')]
         #[Groups(['user:put:write'])]
         private string $email,
 
         #[Groups(['user:put:write'])]
-        #[Assert\NotBlank]
+        #[Assert\NotBlank(message: 'familyName cannot be blank.')]
         private string $familyName,
 
-        #[Assert\NotBlank]
+        #[Assert\NotBlank(message: 'givenName cannot be blank.')]
         #[Groups(['user:put:write'])]
         private string $givenName,
 

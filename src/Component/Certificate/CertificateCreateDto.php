@@ -13,17 +13,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 readonly class CertificateCreateDto
 {
     public function __construct(
-        #[Assert\NotBlank(message: "bo'sh")]
         #[Assert\Email]
+        #[Assert\NotBlank(message: 'Email cannot be blank.')]
         #[Groups(['certificate:write'])]
         private string $email,
 
         #[Groups(['certificate:write'])]
-        #[Assert\NotBlank]
+        #[Assert\NotBlank(message: 'familyName cannot be blank.')]
         private string $familyName,
 
         #[Groups(['certificate:write'])]
-        #[Assert\NotBlank]
+        #[Assert\NotBlank(message: 'givenName cannot be blank.')]
         private string $givenName,
 
         #[Groups(['certificate:write'])]

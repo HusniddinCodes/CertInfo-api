@@ -21,6 +21,7 @@ class UserChangeDataAction extends AbstractController
         UserChangeDataDto $userChangeDataDto,
         PersonManager $personManager,
     ): User {
+        $this->validate($userChangeDataDto);
         $previousEmail = $user->getEmail();
         $userEmail = $userRepository->findOneByEmail($userChangeDataDto->getEmail());
 

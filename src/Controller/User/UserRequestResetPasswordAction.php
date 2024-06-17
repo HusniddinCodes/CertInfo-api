@@ -26,6 +26,7 @@ class UserRequestResetPasswordAction extends AbstractController
         SecretKeyRepository $secretKeyRepository,
         MessageBusInterface $messageBus,
     ): JsonResponse {
+        $this->validate($request);
         $data = json_decode($request->getContent(), true);
         $email = $data['email'] ?? null;
         $user = $userRepository->findOneByEmail($email);

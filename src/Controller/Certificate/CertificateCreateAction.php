@@ -41,35 +41,35 @@ class CertificateCreateAction extends AbstractController
         CertificateManager $certificateManager,
         CertificateWithUserBuilder $certificateWithUserBuilder,
         MessageBusInterface $messageBus,
+        CertificateCreateDto $certificateCreateDto
     ): Certificate {
-        /** @var CertificateCreateDto $certificateCreateRequest */
-        $certificateCreateRequest = $this->getDtoFromRequest($request, CertificateCreateDto::class);
+        $this->validate($certificateCreateDto);
         $projectDirectory = $this->getParameter('kernel.project_dir');
 
         $certificate = $certificateWithUserBuilder->make(
-            $certificateCreateRequest->getEmail(),
-            $certificateCreateRequest->getFamilyName(),
-            $certificateCreateRequest->getGivenName(),
-            $certificateCreateRequest->getCourse(),
-            $certificateCreateRequest->getCourseFinishedDate(),
-            $certificateCreateRequest->getPracticeDescription(),
-            $certificateCreateRequest->getCertificateDefense(),
+            $certificateCreateDto->getEmail(),
+            $certificateCreateDto->getFamilyName(),
+            $certificateCreateDto->getGivenName(),
+            $certificateCreateDto->getCourse(),
+            $certificateCreateDto->getCourseFinishedDate(),
+            $certificateCreateDto->getPracticeDescription(),
+            $certificateCreateDto->getCertificateDefense(),
             $this->getUser(),
-            $certificateCreateRequest->getAvatar()
+            $certificateCreateDto->getAvatar()
         );
 
         $pdf = $pdfService->generatePdf(
             $projectDirectory,
-            $certificateCreateRequest->getCourseFinishedDate()->format('Y'),
-            $certificateCreateRequest->getFamilyName(),
-            $certificateCreateRequest->getGivenName(),
-            $certificateCreateRequest->getCourse()->getName(),
+            $certificateCreateDto->getCourseFinishedDate()->format('Y'),
+            $certificateCreateDto->getFamilyName(),
+            $certificateCreateDto->getGivenName(),
+            $certificateCreateDto->getCourse()->getName(),
             $request->headers->get('referer') . '/scan-qr/' . $certificate->getId()
         );
 
         $certificateImage = $pdfToJpgService->pdfToImage(
-            $certificateCreateRequest->getFamilyName(),
-            $certificateCreateRequest->getGivenName(),
+            $certificateCreateDto->getFamilyName(),
+            $certificateCreateDto->getGivenName(),
             '/tmp/' . $pdf->file->getBasename()
         );
 
@@ -80,12 +80,12 @@ class CertificateCreateAction extends AbstractController
         $certificateManager->save($certificate, true);
 
         $messageBus->dispatch(new GreetingNewCertificateByEmail(
-            $certificateCreateRequest->getEmail(),
+            $certificateCreateDto->getEmail(),
             $request->headers->get('referer') . '/scan-qr/' . $certificate->getId(),
             $request->getSchemeAndHttpHost() . '/media/' . $certificate->getFile()->filePath,
             $request->getSchemeAndHttpHost() . '/media/' . $certificateImage->filePath,
-            $certificateCreateRequest->getFamilyName(),
-            $certificateCreateRequest->getGivenName(),
+            $certificateCreateDto->getFamilyName(),
+            $certificateCreateDto->getGivenName(),
         ));
 
         return $certificate;
