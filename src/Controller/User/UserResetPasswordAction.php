@@ -38,7 +38,8 @@ class UserResetPasswordAction extends AbstractController
         }
 
         if (strlen($newPassword) < self::MIN_LENGTH_PASSWORD) {
-            throw new BadRequestHttpException('Password must contain at least ' . self::MIN_LENGTH_PASSWORD . ' characters'
+            throw new BadRequestHttpException(
+                'Password must contain at least ' . self::MIN_LENGTH_PASSWORD . ' characters'
             );
         }
 
