@@ -19,10 +19,10 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class UserRequestResetPasswordAction extends AbstractController
 {
     public function __invoke(
-        Request             $request,
-        SecretKeyFactory    $secretKeyFactory,
-        SecretKeyManager    $secretKeyManager,
-        UserRepository      $userRepository,
+        Request $request,
+        SecretKeyFactory $secretKeyFactory,
+        SecretKeyManager $secretKeyManager,
+        UserRepository $userRepository,
         SecretKeyRepository $secretKeyRepository,
         MessageBusInterface $messageBus,
     ): JsonResponse {
@@ -32,7 +32,11 @@ class UserRequestResetPasswordAction extends AbstractController
         $user = $userRepository->findOneByEmail($email);
 
         if ($user === null) {
-            throw new BadRequestHttpException("This user does not exist in the system!");
+            throw new BadRequestHttpException('This user does not exist in the system!');
+        }
+
+        if (!in_array('ROLE_ADMIN', $user->getRoles())) {
+            throw new BadRequestHttpException('You are not Admin');
         }
 
         $this->checkExistingToken($secretKeyRepository, $user);
