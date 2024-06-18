@@ -128,6 +128,8 @@ class Certificate implements
     #[Groups(['certificate:forId:read'])]
     private ?MediaObject $imgCertificate = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $certificateHash= null;
 
     public function getId(): ?int
     {
@@ -286,6 +288,18 @@ class Certificate implements
     public function setImgCertificate(MediaObject $imgCertificate): self
     {
         $this->imgCertificate = $imgCertificate;
+
+        return $this;
+    }
+
+    public function getCertificateHash(): ?string
+    {
+        return $this->certificateHash;
+    }
+
+    public function setCertificateHash(string $certificateHash): self
+    {
+        $this->certificateHash = $certificateHash;
 
         return $this;
     }

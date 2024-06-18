@@ -64,7 +64,7 @@ class CertificateCreateAction extends AbstractController
             $certificateCreateDto->getFamilyName(),
             $certificateCreateDto->getGivenName(),
             $certificateCreateDto->getCourse()->getName(),
-            $request->headers->get('referer') . '/scan-qr/' . $certificate->getId()
+            $request->headers->get('referer') . '/scan-qr/' . $certificate->getCertificateHash()
         );
 
         $certificateImage = $pdfToJpgService->pdfToImage(
@@ -81,7 +81,7 @@ class CertificateCreateAction extends AbstractController
 
         $messageBus->dispatch(new GreetingNewCertificateByEmail(
             $certificateCreateDto->getEmail(),
-            $request->headers->get('referer') . '/scan-qr/' . $certificate->getId(),
+            $request->headers->get('referer') . '/scan-qr/' . $certificate->getCertificateHash(),
             $request->getSchemeAndHttpHost() . '/media/' . $certificate->getFile()->filePath,
             $request->getSchemeAndHttpHost() . '/media/' . $certificateImage->filePath,
             $certificateCreateDto->getFamilyName(),
