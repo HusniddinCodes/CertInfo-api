@@ -41,6 +41,11 @@ class CertificateRepository extends ServiceEntityRepository
         }
     }
 
+    public function findOneByHash(string $hash): ?Certificate
+    {
+        return $this->findOneBy(['certificateHash' => $hash]);
+    }
+
 //    /**
 //     * @return Certificate[] Returns an array of Certificate objects
 //     */

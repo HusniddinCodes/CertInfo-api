@@ -14,6 +14,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Component\Certificate\CertificateCreateDto;
 use App\Controller\Certificate\CertificateCreateAction;
+use App\Controller\Certificate\GetCertificateByHashAction;
 use App\Controller\DeleteAction;
 use App\Entity\Interfaces\CreatedAtSettableInterface;
 use App\Entity\Interfaces\CreatedBySettableInterface;
@@ -41,6 +42,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Get(normalizationContext: ['groups' => ['certificate:forId:read']]),
         new Put(security: "is_granted('ROLE_ADMIN')"),
         new Delete(controller: DeleteAction::class, security: "is_granted('ROLE_ADMIN')"),
+        new Get(
+            uriTemplate: 'certificates/hash/{id}',
+            requirements: ['id' => '[\w]+'],
+            controller: GetCertificateByHashAction::class,
+            normalizationContext: ['groups' => ['certificate:read']],
+            read: false,
+        )
     ],
     normalizationContext: ['groups' => ['certificate:read']],
     denormalizationContext: ['groups' => ['certificate:write']],
@@ -129,7 +137,7 @@ class Certificate implements
     private ?MediaObject $imgCertificate = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $certificateHash= null;
+    private ?string $certificateHash = null;
 
     public function getId(): ?int
     {
@@ -213,9 +221,9 @@ class Certificate implements
         return $this->createdBy;
     }
 
-    public function setCreatedBy(?UserInterface $createdBy): self
+    public function setCreatedBy(?UserInterface $user): self
     {
-        $this->createdBy = $createdBy;
+        $this->createdBy = $user;
 
         return $this;
     }
@@ -237,9 +245,9 @@ class Certificate implements
         return $this->updatedBy;
     }
 
-    public function setUpdatedBy(?UserInterface $updatedBy): self
+    public function setUpdatedBy(?UserInterface $user): self
     {
-        $this->updatedBy = $updatedBy;
+        $this->updatedBy = $user;
 
         return $this;
     }
@@ -261,9 +269,9 @@ class Certificate implements
         return $this->deletedBy;
     }
 
-    public function setDeletedBy(?UserInterface $deletedBy): self
+    public function setDeletedBy(?UserInterface $user): self
     {
-        $this->deletedBy = $deletedBy;
+        $this->deletedBy = $user;
 
         return $this;
     }
