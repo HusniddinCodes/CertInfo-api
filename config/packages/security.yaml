@@ -1,94 +1,100 @@
 security:
-    # https://symfony.com/doc/current/security.html#c-hashing-passwords
-    password_hashers:
-        App\Entity\User: auto
+  # https://symfony.com/doc/current/security.html#c-hashing-passwords
+  password_hashers:
+    App\Entity\User: auto
 
-    # https://symfony.com/doc/current/security/authenticator_manager.html
-    enable_authenticator_manager: true
+  # https://symfony.com/doc/current/security/authenticator_manager.html
+  enable_authenticator_manager: true
 
-    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
-    providers:
-        entity_provider:
-            entity:
-                class: App\Entity\User
-                property: email
+  # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+  providers:
+    entity_provider:
+      entity:
+        class: App\Entity\User
+        property: email
 
-        jwt:
-            lexik_jwt:
-                class: App\Component\User\Dtos\JwtUserDto
+    jwt:
+      lexik_jwt:
+        class: App\Component\User\Dtos\JwtUserDto
 
-    firewalls:
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
+  firewalls:
+    dev:
+      pattern: ^/(_(profiler|wdt)|css|images|js)/
+      security: false
 
-        docs_jsonld:
-            pattern: ^/api/docs.jsonld$
-            security: false
-            methods:
-                - get
+    docs_jsonld:
+      pattern: ^/api/docs.jsonld$
+      security: false
+      methods:
+        - get
 
-        contexts_entrypoint:
-            pattern: ^/api/contexts/Entrypoint$
-            security: false
-            methods:
-                - get
+    contexts_entrypoint:
+      pattern: ^/api/contexts/Entrypoint$
+      security: false
+      methods:
+        - get
 
-        user_auth:
-            pattern: ^/api/users/auth$
-            security: false
-            methods:
-                - post
+    user_auth:
+      pattern: ^/api/users/auth$
+      security: false
+      methods:
+        - post
 
-        get_certificate:
-            pattern: ^/api/certificates/\d+$
-            security: false
-            methods:
-                - get
+    get_certificate:
+      pattern: ^/api/certificates/\d+$
+      security: false
+      methods:
+        - get
 
-        user_auth_refreshToken:
-            pattern: ^/api/users/auth/refreshToken$
-            security: false
-            methods:
-                - post
+    user_auth_refreshToken:
+      pattern: ^/api/users/auth/refreshToken$
+      security: false
+      methods:
+        - post
 
-        user_is_unique_email:
-            pattern: ^/api/users/is_unique_email/?$
-            security: false
-            methods:
-                - post
+    user_is_unique_email:
+      pattern: ^/api/users/is_unique_email/?$
+      security: false
+      methods:
+        - post
 
-        user_create:
-            pattern: ^/api/users/create/?$
-            security: false
-            methods:
-                - post
+    user_create:
+      pattern: ^/api/users/create/?$
+      security: false
+      methods:
+        - post
 
-        user_request_reset_password:
-            pattern: ^/api/users/request_reset_password/?$
-            security: false
-            methods:
-                - post
+    user_request_reset_password:
+      pattern: ^/api/users/request_reset_password/?$
+      security: false
+      methods:
+        - post
 
-        user_reset_password:
-            pattern: ^/api/users/reset-password/?$
-            security: false
-            methods:
-                - post
+    user_reset_password:
+      pattern: ^/api/users/reset-password/?$
+      security: false
+      methods:
+        - post
 
-        doc:
-            pattern: ^/api/?$
-            security: false
-            methods:
-                - get
+    get_certificate_scan_qr:
+      pattern: ^/api/certificates/hash/\w+$
+      security: false
+      methods:
+        - get
 
-        main:
-            stateless: true
-            security: true
-            provider: entity_provider
-            # provider: jwt # if you use microservices
-            jwt: ~
+    doc:
+      pattern: ^/api/?$
+      security: false
+      methods:
+        - get
 
-    access_control:
-        - { path: ^/api/.+, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api, roles: IS_AUTHENTICATED_ANONYMOUSLY } # Allows accessing the Swagger UI
+    main:
+      stateless: true
+      security: true
+      provider: entity_provider
+      # provider: jwt # if you use microservices
+      jwt: ~
+
+  access_control:
+    - { path: ^/api/.+, roles: IS_AUTHENTICATED_FULLY }
+    - { path: ^/api, roles: IS_AUTHENTICATED_ANONYMOUSLY } # Allows accessing the Swagger UI
