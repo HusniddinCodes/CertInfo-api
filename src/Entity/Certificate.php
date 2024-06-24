@@ -12,7 +12,9 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Component\Certificate\CertificateChangeDataDto;
 use App\Component\Certificate\CertificateCreateDto;
+use App\Controller\Certificate\CertificateChangeDataAction;
 use App\Controller\Certificate\CertificateCreateAction;
 use App\Controller\Certificate\GetCertificateByHashAction;
 use App\Controller\DeleteAction;
@@ -40,10 +42,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
         new GetCollection(security: "is_granted('ROLE_ADMIN')"),
         new Get(normalizationContext: ['groups' => ['certificate:forId:read']]),
-        new Put(security: "is_granted('ROLE_ADMIN')"),
+        new Put(
+            controller: CertificateChangeDataAction::class,
+            security: "is_granted('ROLE_ADMIN')",
+            input: CertificateChangeDataDto::class
+        ),
+
         new Delete(controller: DeleteAction::class, security: "is_granted('ROLE_ADMIN')"),
         new Get(
-            uriTemplate: 'certificates/hash/{id}',
+            uriTemplate: 'certificates/scan_qr/{id}',
             requirements: ['id' => '[\w]+'],
             controller: GetCertificateByHashAction::class,
             normalizationContext: ['groups' => ['certificate:read']],

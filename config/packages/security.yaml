@@ -77,7 +77,7 @@ security:
         - post
 
     get_certificate_scan_qr:
-      pattern: ^/api/certificates/hash/\w+$
+      pattern: ^/api/certificates/scan_qr/\w+$
       security: false
       methods:
         - get
