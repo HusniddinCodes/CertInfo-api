@@ -32,7 +32,6 @@ readonly class CertificateCreateDto
 
         #[Groups(['certificate:write'])]
         #[Assert\NotBlank]
-        #[Assert\Date]
         private DateTimeInterface $courseFinishedDate,
 
         #[Groups(['certificate:write'])]
