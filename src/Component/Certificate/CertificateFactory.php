@@ -32,4 +32,23 @@ class CertificateFactory
             ->setCreatedBy($createdBy)
             ->setCertificateHash($certificateHash);
     }
+
+    public function reCreateCertificate(
+        Certificate $certificate,
+        User $user,
+        User $createdBy,
+        Course $course,
+        string $practiceDescription,
+        string $certificateDefense,
+        DateTimeInterface $finishedDate
+
+    ): Certificate {
+        return $certificate
+            ->setOwner($user)
+            ->setCreatedBy($createdBy)
+            ->setCourse($course)
+            ->setPracticeDescription($practiceDescription)
+            ->setCertificateDefense($certificateDefense)
+            ->setCourseFinishedDate($finishedDate);
+    }
 }

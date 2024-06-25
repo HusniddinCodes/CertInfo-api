@@ -7,12 +7,8 @@ namespace App\Component\Certificate;
 use App\Component\Person\PersonManager;
 use App\Component\User\UserWithPersonBuilder;
 use App\Entity\Certificate;
-use App\Entity\Course;
-use App\Entity\MediaObject;
-use App\Entity\Person;
 use App\Entity\User;
 use App\Repository\UserRepository;
-use DateTimeInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class CertificateChangeDataService
@@ -21,11 +17,12 @@ class CertificateChangeDataService
         private UserWithPersonBuilder $userWithPersonBuilder,
         private UserRepository $userRepository,
         private PersonManager $personManager,
+        private CertificateFactory $certificateFactory,
         private ParameterBagInterface $params
     ) {
     }
 
-    public function certificateChangeData(
+    public function changeDataExceptUser(
         Certificate $certificate,
         CertificateChangeDataDto $certificateChangeDataDto
     ): Certificate {
@@ -37,42 +34,48 @@ class CertificateChangeDataService
 
     public function createUserIfNotFind(
         Certificate $certificate,
-        string $email,
-        string $familyName,
-        string $givenName,
-        Course $course,
-        DateTimeInterface $finishedDate,
-        string $practiceDescription,
-        string $certificateDefense,
-        User $createdBy,
-        ?MediaObject $avatar
+        CertificateChangeDataDto $certificateChangeDataDto,
+        User $createdBy
     ): Certificate {
-        $user = $this->userRepository->findOneByEmail($email);
+        $user = $this->createUserIfNotExist($certificateChangeDataDto);
 
-        if ($user === null) {
-            $user = $this->userWithPersonBuilder->make(
-                $email,
-                $this->params->get('default_password_for_student'),
-                $familyName,
-                $givenName,
-                $avatar
-            );
-        }
-
-        return $this->createCertificate(
+        return $this->certificateFactory->reCreateCertificate(
             $certificate,
             $user,
             $createdBy,
-            $course,
-            $practiceDescription,
-            $certificateDefense,
-            $finishedDate
+            $certificateChangeDataDto->getCourse(),
+            $certificateChangeDataDto->getPracticeDescription(),
+            $certificateChangeDataDto->getCertificateDefense(),
+            $certificateChangeDataDto->getCourseFinishedDate()
         );
     }
 
-    public function updatePersonIfHasChanged(User $user, string $familyName, string $givenName,)
-    {
+    private function createUserIfNotExist(
+        CertificateChangeDataDto $certificateChangeDataDto
+    ): User {
+        $user = $this->userRepository->findOneByEmail($certificateChangeDataDto->getEmail());
+
+        if ($user === null) {
+            return $this->userWithPersonBuilder->make(
+                $certificateChangeDataDto->getEmail(),
+                $this->params->get('default_password_for_student'),
+                $certificateChangeDataDto->getFamilyName(),
+                $certificateChangeDataDto->getGivenName(),
+                $certificateChangeDataDto->getAvatar()
+            );
+        }
+
+        return $user;
+    }
+
+    public function updatePersonIfHasChanged(
+        Certificate $certificate,
+        CertificateChangeDataDto $certificateChangeDataDto
+    ): User {
+        $user = $certificate->getOwner();
         $person = $user->getPerson();
+        $familyName = $certificateChangeDataDto->getFamilyName();
+        $givenName = $certificateChangeDataDto->getGivenName();
 
         if ($familyName !== $user->getPerson()->getFamilyName() || $givenName !== $user->getPerson()->getGivenName()) {
             $person
@@ -83,24 +86,5 @@ class CertificateChangeDataService
         }
 
         return $user;
-    }
-
-    private function createCertificate(
-        Certificate $certificate,
-        User $user,
-        User $createdBy,
-        Course $course,
-        string $practiceDescription,
-        string $certificateDefense,
-        DateTimeInterface $finishedDate
-
-    ): Certificate {
-        return $certificate
-            ->setOwner($user)
-            ->setCreatedBy($createdBy)
-            ->setCourse($course)
-            ->setPracticeDescription($practiceDescription)
-            ->setCertificateDefense($certificateDefense)
-            ->setCourseFinishedDate($finishedDate);
     }
 }

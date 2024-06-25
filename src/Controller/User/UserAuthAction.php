@@ -54,5 +54,4 @@ class UserAuthAction extends AbstractController
     {
         throw new AuthException('Entered email wrong!');
     }
-
 }
