@@ -11,8 +11,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class CertificateMessageToOwner
 {
-    public function __construct(private readonly MessageBusInterface $messageBus)
-    {
+    public function __construct(private readonly MessageBusInterface $messageBus) {
     }
 
     public function sendEmail(

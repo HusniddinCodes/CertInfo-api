@@ -8,8 +8,7 @@ use App\Entity\MediaObject;
 
 class CertificateImage
 {
-    public function __construct(private readonly PdfToJpgService $pdfToJpgService)
-    {
+    public function __construct(private readonly PdfToJpgService $pdfToJpgService) {
     }
 
     public function create(

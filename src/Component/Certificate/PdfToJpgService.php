@@ -11,8 +11,7 @@ use Vich\UploaderBundle\FileAbstraction\ReplacingFile;
 
 class PdfToJpgService
 {
-    public function __construct(private GenerateSecurityKey $generateSecurityKey)
-    {
+    public function __construct(private GenerateSecurityKey $generateSecurityKey) {
     }
 
     public function pdfToImage(string $familyName, string $givenName, string $pdf): MediaObject

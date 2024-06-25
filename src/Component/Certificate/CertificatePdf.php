@@ -10,8 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class CertificatePdf
 {
-    public function __construct(private readonly PdfService $pdfService)
-    {
+    public function __construct(private readonly PdfService $pdfService) {
     }
 
     public function create(
