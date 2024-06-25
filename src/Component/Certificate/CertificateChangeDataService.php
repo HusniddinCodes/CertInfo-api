@@ -9,6 +9,7 @@ use App\Component\User\UserWithPersonBuilder;
 use App\Entity\Certificate;
 use App\Entity\Course;
 use App\Entity\MediaObject;
+use App\Entity\Person;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use DateTimeInterface;
@@ -51,6 +52,27 @@ class CertificateChangeDataService
         $user = $this->userRepository->findOneByEmail($email);
         $person = $user->getPerson();
 
+        $this->createUserIfNotFind($user, $email, $familyName, $givenName, $avatar);
+        $this->updatePersonIfHasChanged($user, $person, $familyName, $givenName);
+
+        return $this->createCertificate(
+            $certificate,
+            $user,
+            $createdBy,
+            $course,
+            $practiceDescription,
+            $certificateDefense,
+            $finishedDate
+        );
+    }
+
+    private function createUserIfNotFind(
+        User $user,
+        string $email,
+        string $familyName,
+        string $givenName,
+        ?MediaObject $avatar
+    ): User {
         if ($user === null) {
             $user = $this->userWithPersonBuilder->make(
                 $email,
@@ -61,6 +83,11 @@ class CertificateChangeDataService
             );
         }
 
+        return $user;
+    }
+
+    private function updatePersonIfHasChanged(User $user, Person $person, string $familyName, string $givenName,)
+    {
         if ($familyName !== $user->getPerson()->getFamilyName() || $givenName !== $user->getPerson()->getGivenName()) {
             $person
                 ->setFamilyName($familyName)
@@ -68,15 +95,24 @@ class CertificateChangeDataService
 
             $this->personManager->save($person);
         }
+    }
 
-        $certificate
+    private function createCertificate(
+        Certificate $certificate,
+        User $user,
+        User $createdBy,
+        Course $course,
+        string $practiceDescription,
+        string $certificateDefense,
+        DateTimeInterface $finishedDate
+
+    ): Certificate {
+        return $certificate
             ->setOwner($user)
             ->setCreatedBy($createdBy)
             ->setCourse($course)
             ->setPracticeDescription($practiceDescription)
             ->setCertificateDefense($certificateDefense)
             ->setCourseFinishedDate($finishedDate);
-
-        return $certificate;
     }
 }
