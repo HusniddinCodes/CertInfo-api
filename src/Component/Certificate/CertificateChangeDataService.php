@@ -50,9 +50,8 @@ class CertificateChangeDataService
         );
     }
 
-    private function createUserIfNotExist(
-        CertificateChangeDataDto $certificateChangeDataDto
-    ): User {
+    private function createUserIfNotExist(CertificateChangeDataDto $certificateChangeDataDto): User
+    {
         $user = $this->userRepository->findOneByEmail($certificateChangeDataDto->getEmail());
 
         if ($user === null) {
