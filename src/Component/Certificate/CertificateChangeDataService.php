@@ -27,17 +27,15 @@ class CertificateChangeDataService
 
     public function certificateChangeData(
         Certificate $certificate,
-        string $practiceDescription,
-        string $certificateDefense,
-        DateTimeInterface $finishedDate,
+        CertificateChangeDataDto $certificateChangeDataDto
     ): Certificate {
         return $certificate
-            ->setPracticeDescription($practiceDescription)
-            ->setCertificateDefense($certificateDefense)
-            ->setCourseFinishedDate($finishedDate);
+            ->setPracticeDescription($certificateChangeDataDto->getPracticeDescription())
+            ->setCertificateDefense($certificateChangeDataDto->getCertificateDefense())
+            ->setCourseFinishedDate($certificateChangeDataDto->getCourseFinishedDate());
     }
 
-    public function ifNewOwnerData(
+    public function createUserIfNotFind(
         Certificate $certificate,
         string $email,
         string $familyName,
@@ -50,10 +48,16 @@ class CertificateChangeDataService
         ?MediaObject $avatar
     ): Certificate {
         $user = $this->userRepository->findOneByEmail($email);
-        $person = $user->getPerson();
 
-        $this->createUserIfNotFind($user, $email, $familyName, $givenName, $avatar);
-        $this->updatePersonIfHasChanged($user, $person, $familyName, $givenName);
+        if ($user === null) {
+            $user = $this->userWithPersonBuilder->make(
+                $email,
+                $this->params->get('default_password_for_student'),
+                $familyName,
+                $givenName,
+                $avatar
+            );
+        }
 
         return $this->createCertificate(
             $certificate,
@@ -66,28 +70,10 @@ class CertificateChangeDataService
         );
     }
 
-    private function createUserIfNotFind(
-        User $user,
-        string $email,
-        string $familyName,
-        string $givenName,
-        ?MediaObject $avatar
-    ): User {
-        if ($user === null) {
-            $user = $this->userWithPersonBuilder->make(
-                $email,
-                $this->params->get('default_password_for_student'),
-                $familyName,
-                $givenName,
-                $avatar
-            );
-        }
-
-        return $user;
-    }
-
-    private function updatePersonIfHasChanged(User $user, Person $person, string $familyName, string $givenName,)
+    public function updatePersonIfHasChanged(User $user, string $familyName, string $givenName,)
     {
+        $person = $user->getPerson();
+
         if ($familyName !== $user->getPerson()->getFamilyName() || $givenName !== $user->getPerson()->getGivenName()) {
             $person
                 ->setFamilyName($familyName)
@@ -95,6 +81,8 @@ class CertificateChangeDataService
 
             $this->personManager->save($person);
         }
+
+        return $user;
     }
 
     private function createCertificate(

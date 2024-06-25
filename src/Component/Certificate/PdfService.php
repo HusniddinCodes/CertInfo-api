@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Component\Certificate;
 
 
+use App\Component\SecretKey\GenerateSecurityKey;
 use App\Entity\MediaObject;
 use Knp\Snappy\Pdf;
 use Twig\Environment;
@@ -15,7 +16,8 @@ readonly class PdfService
     public function __construct(
         private QrCodeGenerateService $qrCodeGenerateService,
         private Pdf $pdf,
-        private Environment $twig
+        private Environment $twig,
+        private GenerateSecurityKey $generateSecurityKey
     ) {
     }
 
@@ -68,7 +70,7 @@ readonly class PdfService
     private function createPdfFile(string $familyName, string $givenName, string $pdfContent): MediaObject
     {
         $tempDir = sys_get_temp_dir();
-        $tempPdfPath = $tempDir . DIRECTORY_SEPARATOR . $familyName . '_' . $givenName . '.pdf';
+        $tempPdfPath = $tempDir . DIRECTORY_SEPARATOR . $familyName . '_' . $givenName . '_' . $this->generateSecurityKey->generate() . '.pdf';
         file_put_contents($tempPdfPath, $pdfContent);
 
         $pdfFile = new ReplacingFile($tempPdfPath);

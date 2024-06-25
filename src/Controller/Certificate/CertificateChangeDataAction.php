@@ -29,7 +29,6 @@ class CertificateChangeDataAction extends AbstractController
         SerializerInterface $serializer,
         ValidatorInterface $validator,
         CurrentUser $currentUser,
-        private readonly CertificateChangeDataDto $certificateChangeDataDto,
         private readonly CertificateChangeDataService $certificateChangeDataService,
         private readonly PdfService $pdfService,
         private readonly PdfToJpgService $pdfToJpgService,
@@ -47,19 +46,18 @@ class CertificateChangeDataAction extends AbstractController
         UserWithPersonBuilder $userWithPersonBuilder,
         CertificateFactory $certificateFactory,
         CertificateWithUserBuilder $certificateWithUserBuilder,
+        CertificateChangeDataDto $certificateChangeDataDto
     ): Certificate {
-        $this->validate($this->certificateChangeDataDto);
+        $this->validate($certificateChangeDataDto);
 
-        if ($this->hasCertificateOwnerChanged($certificate)) {
-            $this->createCertificate($certificate);
-            $this->createNewCertificateFile($request, $certificate);
+        if ($this->IfNewOwnerEmail($certificate, $certificateChangeDataDto)) {
+            $this->hasCertificateOwnerEmailChanged($certificate, $certificateChangeDataDto);
+            $this->createNewCertificateFile($request, $certificate, $certificateChangeDataDto);
+        } elseif ($this->hasCertificateOwnerPersonChanged($certificate, $certificateChangeDataDto)) {
+            $this->IfNewOwnerPerson($certificate, $certificateChangeDataDto);
+            $this->createNewCertificateFile($request, $certificate, $certificateChangeDataDto);
         } else {
-            $this->certificateChangeDataService->certificateChangeData(
-                $certificate,
-                $this->certificateChangeDataDto->getPracticeDescription(),
-                $this->certificateChangeDataDto->getCertificateDefense(),
-                $this->certificateChangeDataDto->getCourseFinishedDate()
-            );
+            $this->certificateChangeDataService->certificateChangeData($certificate, $certificateChangeDataDto);
 
             $this->certificateManager->save($certificate, true);
         }
@@ -67,80 +65,60 @@ class CertificateChangeDataAction extends AbstractController
         return $certificate;
     }
 
-    private function hasCertificateOwnerChanged(Certificate $certificate)
-    {
+    private function hasCertificateOwnerEmailChanged(
+        Certificate $certificate,
+        CertificateChangeDataDto $certificateChangeDataDto
+    ): bool {
         $previousEmail = $certificate->getOwner()->getEmail();
+
+        return $previousEmail !== $certificateChangeDataDto->getEmail();
+    }
+
+    private function IfNewOwnerEmail(Certificate $certificate, CertificateChangeDataDto $certificateChangeDataDto)
+    {
+        return $this->certificateChangeDataService->createUserIfNotFind(
+            $certificate,
+            $certificateChangeDataDto->getEmail(),
+            $certificateChangeDataDto->getFamilyName(),
+            $certificateChangeDataDto->getGivenName(),
+            $certificateChangeDataDto->getCourse(),
+            $certificateChangeDataDto->getCourseFinishedDate(),
+            $certificateChangeDataDto->getPracticeDescription(),
+            $certificateChangeDataDto->getCertificateDefense(),
+            $this->getUser(),
+            $certificateChangeDataDto->getAvatar()
+        );
+    }
+
+    private function hasCertificateOwnerPersonChanged(
+        Certificate $certificate,
+        CertificateChangeDataDto $certificateChangeDataDto
+    ): bool {
         $previousFamilyName = $certificate->getOwner()->getPerson()->getFamilyName();
         $previousGivenName = $certificate->getOwner()->getPerson()->getGivenName();
         $previousCourse = $certificate->getCourse();
 
-        return $previousEmail !== $this->certificateChangeDataDto->getEmail() ||
-            $previousFamilyName !== $this->certificateChangeDataDto->getFamilyName() ||
-            $previousGivenName !== $this->certificateChangeDataDto->getGivenName() ||
-            $previousCourse !== $this->certificateChangeDataDto->getCourse();
+        return $previousFamilyName !== $certificateChangeDataDto->getFamilyName() ||
+            $previousGivenName !== $certificateChangeDataDto->getGivenName() ||
+            $previousCourse !== $certificateChangeDataDto->getCourse();
     }
 
-    private function createCertificate(Certificate $certificate)
+    private function IfNewOwnerPerson(Certificate $certificate, CertificateChangeDataDto $certificateChangeDataDto)
     {
-        return $this->certificateChangeDataService->ifNewOwnerData(
-            $certificate,
-            $this->certificateChangeDataDto->getEmail(),
-            $this->certificateChangeDataDto->getFamilyName(),
-            $this->certificateChangeDataDto->getGivenName(),
-            $this->certificateChangeDataDto->getCourse(),
-            $this->certificateChangeDataDto->getCourseFinishedDate(),
-            $this->certificateChangeDataDto->getPracticeDescription(),
-            $this->certificateChangeDataDto->getCertificateDefense(),
-            $this->getUser(),
-            $this->certificateChangeDataDto->getAvatar()
+        return $this->certificateChangeDataService->updatePersonIfHasChanged(
+            $certificate->getOwner(),
+            $certificateChangeDataDto->getFamilyName(),
+            $certificateChangeDataDto->getGivenName()
         );
     }
 
-    private function createCertificatePdf(Request $request, Certificate $certificate)
-    {
-        $projectDirectory = $this->getParameter('kernel.project_dir');
-
-        return $this->pdfService->generatePdf(
-            $projectDirectory,
-            $this->certificateChangeDataDto->getCourseFinishedDate()->format('Y'),
-            $this->certificateChangeDataDto->getFamilyName(),
-            $this->certificateChangeDataDto->getGivenName(),
-            $this->certificateChangeDataDto->getCourse()->getName(),
-            $request->headers->get(
-                'referer'
-            ) . 'scan-qr/certificate?certificate=' . $certificate->getCertificateHash()
-        );
-    }
-
-    private function createCertificateImage($pdf)
-    {
-        return $this->pdfToJpgService->pdfToImage(
-            $this->certificateChangeDataDto->getFamilyName(),
-            $this->certificateChangeDataDto->getGivenName(),
-            '/tmp/' . $pdf->file->getBasename()
-        );
-    }
-
-    private function sendEmail(Request $request, Certificate $certificate, $certificateImage)
-    {
-        $this->messageBus->dispatch(
-            new GreetingNewCertificateByEmail(
-                $this->certificateChangeDataDto->getEmail(),
-                $request->headers->get(
-                    'referer'
-                ) . 'scan-qr/certificate?certificate=' . $certificate->getCertificateHash(),
-                $request->getSchemeAndHttpHost() . '/media/' . $certificate->getFile()->filePath,
-                $request->getSchemeAndHttpHost() . '/media/' . $certificateImage->filePath,
-                $this->certificateChangeDataDto->getFamilyName(),
-                $this->certificateChangeDataDto->getGivenName(),
-            )
-        );
-    }
-
-    private function createNewCertificateFile(Request $request, Certificate $certificate)
-    {
-        $pdf = $this->createCertificatePdf($request, $certificate);
-        $certificateImage= $this->createCertificateImage($pdf);
+    private function createNewCertificateFile(
+        Request $request,
+        Certificate $certificate,
+        CertificateChangeDataDto $certificateChangeDataDto
+    ) {
+        $pdf = $this->createCertificatePdf($request, $certificate, $certificateChangeDataDto);
+        $certificateImage = $this->createCertificateImage($pdf, $certificateChangeDataDto);
 
         $this->mediaObjectRepository->remove($certificate->getFile());
         $this->mediaObjectRepository->remove($certificate->getImgCertificate());
@@ -151,6 +129,54 @@ class CertificateChangeDataAction extends AbstractController
 
         $this->certificateManager->save($certificate, true);
 
-        $this->sendEmail($request, $certificate, $certificateImage);
+        $this->sendEmail($request, $certificate, $certificateImage, $certificateChangeDataDto);
+    }
+
+    private function createCertificatePdf(
+        Request $request,
+        Certificate $certificate,
+        CertificateChangeDataDto $certificateChangeDataDto
+    ) {
+        $projectDirectory = $this->getParameter('kernel.project_dir');
+
+        return $this->pdfService->generatePdf(
+            $projectDirectory,
+            $certificateChangeDataDto->getCourseFinishedDate()->format('Y'),
+            $certificateChangeDataDto->getFamilyName(),
+            $certificateChangeDataDto->getGivenName(),
+            $certificateChangeDataDto->getCourse()->getName(),
+            $request->headers->get(
+                'referer'
+            ) . 'scan-qr/certificate?certificate=' . $certificate->getCertificateHash()
+        );
+    }
+
+    private function createCertificateImage($pdf, CertificateChangeDataDto $certificateChangeDataDto)
+    {
+        return $this->pdfToJpgService->pdfToImage(
+            $certificateChangeDataDto->getFamilyName(),
+            $certificateChangeDataDto->getGivenName(),
+            '/tmp/' . $pdf->file->getBasename()
+        );
+    }
+
+    private function sendEmail(
+        Request $request,
+        Certificate $certificate,
+        $certificateImage,
+        CertificateChangeDataDto $certificateChangeDataDto
+    ) {
+        $this->messageBus->dispatch(
+            new GreetingNewCertificateByEmail(
+                $certificateChangeDataDto->getEmail(),
+                $request->headers->get(
+                    'referer'
+                ) . 'scan-qr/certificate?certificate=' . $certificate->getCertificateHash(),
+                $request->getSchemeAndHttpHost() . '/media/' . $certificate->getFile()->filePath,
+                $request->getSchemeAndHttpHost() . '/media/' . $certificateImage->filePath,
+                $certificateChangeDataDto->getFamilyName(),
+                $certificateChangeDataDto->getGivenName(),
+            )
+        );
     }
 }
