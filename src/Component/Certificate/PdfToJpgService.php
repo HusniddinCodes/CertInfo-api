@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Component\Certificate;
 
+use App\Component\SecretKey\GenerateSecurityKey;
 use App\Entity\MediaObject;
 use Imagick;
 use Vich\UploaderBundle\FileAbstraction\ReplacingFile;
 
 class PdfToJpgService
 {
+    public function __construct(private GenerateSecurityKey $generateSecurityKey) {
+    }
+
     public function pdfToImage(string $familyName, string $givenName, string $pdf): MediaObject
     {
         $page = 0;
@@ -28,7 +32,7 @@ class PdfToJpgService
     private function createJpgFile(string $familyName, string $givenName, string $imageData): MediaObject
     {
         $tempDir = sys_get_temp_dir();
-        $tempJpgPath = $tempDir . DIRECTORY_SEPARATOR . $familyName . '_' . $givenName . '.jpg';
+        $tempJpgPath = $tempDir . DIRECTORY_SEPARATOR . $familyName . '_' . $givenName . '_' . $this->generateSecurityKey->generate() . '.jpg';
         file_put_contents($tempJpgPath, $imageData);
 
         $jpgFile = new ReplacingFile($tempJpgPath);

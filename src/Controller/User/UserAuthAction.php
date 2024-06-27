@@ -32,7 +32,7 @@ class UserAuthAction extends AbstractController
         $user = $userRepository->findOneByEmail($data->getEmail());
 
         if ($user === null) {
-            $this->throwInvalidCredentials();
+            $this->throwInvalidUser();
         }
 
         if (!$passwordEncoder->isPasswordValid($user, $data->getPassword())) {
@@ -47,6 +47,11 @@ class UserAuthAction extends AbstractController
      */
     private function throwInvalidCredentials(): void
     {
-        throw new AuthException('Invalid credentials');
+        throw new AuthException('Entered password wrong!');
+    }
+
+    private function throwInvalidUser(): void
+    {
+        throw new AuthException('Entered email wrong!');
     }
 }

@@ -10,20 +10,20 @@ use DateTimeInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-readonly class CertificateCreateDto
+readonly class CertificateChangeDataDto
 {
     public function __construct(
+        #[Assert\NotBlank(message: "bo'sh")]
         #[Assert\Email]
-        #[Assert\NotBlank(message: 'Email cannot be blank.')]
         #[Groups(['certificate:write'])]
         private string $email,
 
         #[Groups(['certificate:write'])]
-        #[Assert\NotBlank(message: 'familyName cannot be blank.')]
+        #[Assert\NotBlank]
         private string $familyName,
 
         #[Groups(['certificate:write'])]
-        #[Assert\NotBlank(message: 'givenName cannot be blank.')]
+        #[Assert\NotBlank]
         private string $givenName,
 
         #[Groups(['certificate:write'])]

@@ -12,7 +12,9 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Component\Certificate\CertificateChangeDataDto;
 use App\Component\Certificate\CertificateCreateDto;
+use App\Controller\Certificate\CertificateChangeDataAction;
 use App\Controller\Certificate\CertificateCreateAction;
 use App\Controller\Certificate\GetCertificateByHashAction;
 use App\Controller\DeleteAction;
@@ -40,13 +42,18 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
         new GetCollection(security: "is_granted('ROLE_ADMIN')"),
         new Get(normalizationContext: ['groups' => ['certificate:forId:read']]),
-        new Put(security: "is_granted('ROLE_ADMIN')"),
+        new Put(
+            controller: CertificateChangeDataAction::class,
+            security: "is_granted('ROLE_ADMIN')",
+            input: CertificateChangeDataDto::class
+        ),
+
         new Delete(controller: DeleteAction::class, security: "is_granted('ROLE_ADMIN')"),
         new Get(
-            uriTemplate: 'certificates/hash/{id}',
+            uriTemplate: 'certificates/scan_qr/{id}',
             requirements: ['id' => '[\w]+'],
             controller: GetCertificateByHashAction::class,
-            normalizationContext: ['groups' => ['certificate:read']],
+            normalizationContext: ['groups' => ['certificate:scanQr:read']],
             read: false,
         )
     ],
@@ -79,29 +86,29 @@ class Certificate implements
 
     #[ORM\ManyToOne(inversedBy: 'certificates')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['certificate:read', 'certificate:write', 'certificate:forId:read'])]
+    #[Groups(['certificate:read', 'certificate:write', 'certificate:forId:read', 'certificate:scanQr:read'])]
     private ?User $owner = null;
 
     #[ORM\ManyToOne(targetEntity: "App\Entity\MediaObject", cascade: ["persist"])]
     #[ORM\JoinColumn(nullable: true)]
-    #[Groups(['certificate:forId:read'])]
+    #[Groups(['certificate:read', 'certificate:forId:read', 'certificate:scanQr:read'])]
     private ?MediaObject $file = null;
 
     #[ORM\ManyToOne(inversedBy: 'certificates')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['certificate:read', 'certificate:write', 'certificate:forId:read'])]
+    #[Groups(['certificate:read', 'certificate:write', 'certificate:forId:read', 'certificate:scanQr:read'])]
     private ?Course $course = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Groups(['certificate:read', 'certificate:write', 'certificate:forId:read'])]
+    #[Groups(['certificate:read', 'certificate:write', 'certificate:forId:read', 'certificate:scanQr:read'])]
     private ?\DateTimeInterface $courseFinishedDate = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['certificate:read', 'certificate:write', 'certificate:forId:read'])]
+    #[Groups(['certificate:read', 'certificate:write', 'certificate:forId:read', 'certificate:scanQr:read'])]
     private ?string $practiceDescription = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['certificate:read', 'certificate:write', 'certificate:forId:read'])]
+    #[Groups(['certificate:read', 'certificate:write', 'certificate:forId:read', 'certificate:scanQr:read'])]
     private ?string $certificateDefense = null;
 
     #[ORM\ManyToOne]
@@ -133,7 +140,7 @@ class Certificate implements
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: true)]
-    #[Groups(['certificate:forId:read'])]
+    #[Groups(['certificate:read', 'certificate:write', 'certificate:forId:read', 'certificate:scanQr:read'])]
     private ?MediaObject $imgCertificate = null;
 
     #[ORM\Column(length: 255)]

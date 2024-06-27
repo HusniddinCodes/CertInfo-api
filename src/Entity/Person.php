@@ -27,11 +27,11 @@ class Person implements
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['persons:read', 'person:write', 'users:read', 'certificate:forId:read', 'certificate:read'])]
+    #[Groups(['persons:read', 'person:write', 'users:read', 'certificate:forId:read', 'certificate:read', 'certificate:scanQr:read'])]
     private ?string $givenName = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['persons:read', 'person:write', 'users:read', 'certificate:forId:read', 'certificate:read'])]
+    #[Groups(['persons:read', 'person:write', 'users:read', 'certificate:forId:read', 'certificate:read', 'certificate:scanQr:read'])]
     private ?string $familyName = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -55,7 +55,7 @@ class Person implements
     private ?User $deledetBy = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    #[Groups(['certificate:forId:read', 'certificate:read'])]
+    #[Groups(['certificate:forId:read', 'certificate:read', 'certificate:scanQr:read'])]
     private ?MediaObject $avatar = null;
 
     public function getId(): ?int
