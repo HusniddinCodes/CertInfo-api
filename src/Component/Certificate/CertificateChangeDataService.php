@@ -11,7 +11,7 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-class CertificateChangeDataService
+readonly class CertificateChangeDataService
 {
     public function __construct(
         private UserWithPersonBuilder $userWithPersonBuilder,

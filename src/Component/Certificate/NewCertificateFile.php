@@ -30,20 +30,19 @@ class NewCertificateFile
         $pdf = $this->certificatePdf->create($request, $certificate, $certificateDataDto, $projectDirectory);
         $certificateImage = $this->certificateImage->create($pdf, $certificateDataDto);
 
-        $this->ifHasFiles($certificate);
+        $this->removeFilesIfExists($certificate);
 
         $certificate->setFile($pdf);
         $certificate->setImgCertificate($certificateImage);
         $certificate->setUpdatedBy($createdBy);
 
         $this->certificateManager->save($certificate, true);
-
         $this->certificateMessageToOwner->sendEmail($request, $certificate, $certificateImage, $certificateDataDto);
     }
 
-    private function ifHasFiles(Certificate $certificate): void
+    private function removeFilesIfExists(Certificate $certificate): void
     {
-        if ($certificate->getFile() && $certificate->getImgCertificate() !== null) {
+        if ($certificate->getFile() !== null && $certificate->getImgCertificate() !== null) {
             $this->mediaObjectRepository->remove($certificate->getFile());
             $this->mediaObjectRepository->remove($certificate->getImgCertificate());
         }
