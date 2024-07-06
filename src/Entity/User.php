@@ -52,7 +52,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: "is_granted('ROLE_ADMIN')",
         ),
         new Get(
-            security: "object == user || is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_ADMIN')",
         ),
         new Post(
             uriTemplate: '/users/create',
@@ -63,12 +63,12 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Put(
             controller: UserChangeDataAction::class,
             denormalizationContext: ['groups' => ['user:put:write']],
-            security: "object == user || is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_ADMIN')",
             input: UserChangeDataDto::class,
         ),
         new Delete(
             controller: DeleteAction::class,
-            security: "object == user || is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_ADMIN')",
         ),
         new Post(
             uriTemplate: 'users/about_me',
@@ -130,7 +130,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 summary: 'Changes password'
             ),
             denormalizationContext: ['groups' => ['user:changePassword:write']],
-            security: "object == user || is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_ADMIN')",
             input: UserChangePasswordDto::class,
             name: 'changePassword',
         ),
