@@ -8,6 +8,7 @@ use App\Component\Person\PersonManager;
 use App\Component\User\UserWithPersonBuilder;
 use App\Entity\Certificate;
 use App\Entity\User;
+use App\Repository\PersonRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
@@ -18,7 +19,8 @@ readonly class CertificateChangeDataService
         private UserRepository $userRepository,
         private PersonManager $personManager,
         private CertificateFactory $certificateFactory,
-        private ParameterBagInterface $params
+        private ParameterBagInterface $params,
+        private PersonRepository $personRepository,
     ) {
     }
 
@@ -53,6 +55,11 @@ readonly class CertificateChangeDataService
     private function createUserIfNotExist(CertificateChangeDataDto $certificateChangeDataDto): User
     {
         $user = $this->userRepository->findOneByEmail($certificateChangeDataDto->getEmail());
+        $avatar = $certificateChangeDataDto->getAvatar();
+
+        if (null !== $this->personRepository->findOneByAvatar($avatar)) {
+            $avatar = null;
+        }
 
         if ($user === null) {
             return $this->userWithPersonBuilder->make(
@@ -60,7 +67,7 @@ readonly class CertificateChangeDataService
                 $this->params->get('default_password_for_student'),
                 $certificateChangeDataDto->getFamilyName(),
                 $certificateChangeDataDto->getGivenName(),
-                $certificateChangeDataDto->getAvatar()
+                $avatar
             );
         }
 
