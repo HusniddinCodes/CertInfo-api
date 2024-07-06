@@ -25,17 +25,17 @@ RUN apt-get update && apt-get install -y \
             --with-jpeg \
             --with-freetype \
     && docker-php-ext-configure intl \
-        && docker-php-ext-install \
-             zip \
-             bcmath \
-             gd \
-             mysqli \
-             pdo_mysql \
-             intl \
-             # pdo_pgsql \
-             # soap \
-        && pecl install imagick \
-        && docker-php-ext-enable imagick \
+    && docker-php-ext-install \
+         zip \
+         bcmath \
+         gd \
+         mysqli \
+         pdo_mysql \
+         intl \
+         # pdo_pgsql \
+         # soap \
+    && pecl install imagick \
+    && docker-php-ext-enable imagick \
 	&& curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # for supervisor & redis
