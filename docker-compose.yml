@@ -7,7 +7,7 @@ services:
             - ./docker/php/php.ini:/usr/local/etc/php/php.ini
             - ./docker/ImageMagick-6/policy.xml:/etc/ImageMagick-6/policy.xml
             # if you use supervisor
-            #- ./docker/php/supervisor/messenger-worker.conf:/etc/supervisor/conf.d/messenger-worker.conf
+            - ./docker/php/supervisor/messenger-worker.conf:/etc/supervisor/conf.d/messenger-worker.conf
         build: ./docker/php
         depends_on:
             - mysql

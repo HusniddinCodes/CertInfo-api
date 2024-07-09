@@ -5,6 +5,12 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Controller\DeleteAction;
 use App\Entity\Interfaces\CreatedAtSettableInterface;
 use App\Entity\Interfaces\CreatedBySettableInterface;
 use App\Entity\Interfaces\DeletedAtSettableInterface;
@@ -21,8 +27,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CourseRepository::class)]
 #[ApiResource(
+    operations: [
+        new Post(),
+        new Get(),
+        new GetCollection(),
+        new Put(),
+        new Delete(controller: DeleteAction::class),
+    ],
     normalizationContext: ['groups' => ['course:read']],
     denormalizationContext: ['groups' => ['course:write']],
+    security: ("is_granted('ROLE_ADMIN')")
 )]
 class Course implements
     CreatedAtSettableInterface,
